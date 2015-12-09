@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/progressView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:src="@drawable/progress" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/errorTextView"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="?colorPrimary"
+        android:textSize="16sp" />
+    <ListView
+        android:id="@+id/recordsList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        android:layout_below="@+id/formLayout" />
+
+    <LinearLayout
+        android:id="@+id/formLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/searchField"
+            android:lines="1"
+            style="@style/RecordsFragmentForm"
+            android:layout_weight="2"
+            android:layout_width="wrap_content"
+            android:hint="Szukaj..."
+            android:inputType="textVisiblePassword"/>
+
+            <ImageButton
+                android:layout_height="match_parent"
+                android:layout_width="@dimen/record_speaker_year_icon_dmen"
+                android:id="@+id/speakerButton"
+                android:layout_weight="0.5"
+                android:src="@drawable/icon_speaker"
+                android:scaleType="fitCenter"
+                android:background="@android:color/transparent"
+                android:padding="@dimen/record_speaker_year_icon_padding" />
+
+            <ImageButton
+                android:id="@+id/yearButton"
+                android:layout_height="match_parent"
+                android:layout_width="@dimen/record_speaker_year_icon_dmen"
+                android:layout_weight="0.5"
+                android:src="@drawable/icon_year"
+                android:scaleType="fitCenter"
+                android:padding="@dimen/record_speaker_year_icon_padding"
+                android:background="@android:color/transparent"
+                />
+
+    </LinearLayout>
+
+</RelativeLayout>

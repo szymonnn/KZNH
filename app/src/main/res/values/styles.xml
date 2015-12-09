@@ -1,0 +1,18 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+            <item name="android:activatedBackgroundIndicator">@drawable/activated_background</item>
+            <item name="colorPrimary">@color/primary</item>
+            <item name="colorPrimaryDark">@color/primary_dark</item>
+            <item name="colorAccent">@color/primary</item>
+     </style>
+
+    <style name="RecordsFragmentForm">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">@drawable/records_spinner_edit_text</item>
+        <item name="android:layout_margin">@dimen/records_form_margin</item>
+        <item name="android:padding">5dp</item>
+    </style>
+</resources>

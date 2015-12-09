@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name">KZNH</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_kznh">KZNH</string>
+    <string name="action_pielgrzym_kazania">Kazania</string>
+    <string name="action_pielgrzym_en">Piosenki angielskie</string>
+    <string name="action_pielgrzym_pl">Piosenki polskie</string>
+    <string name="kznh_url">http://sc.4stream.pl:18772</string>
+    <string name="polskie_url">http://shoutcast.com.pl:9444</string>
+    <string name="angielskie_url">http://shoutcast.com.pl:9448</string>
+    <string name="kazania_url">http://radiointernetowe.net:9450</string>
+    <string name="error_unknown">Wystąpił nieoczekiwany błąd.</string>
+    <string name="error_server_died">Nie można połączyć się z serwerem.</string>
+    <string name="error_io">Wystąpił problem z połączeniem</string>
+    <string name="error_network">Włącz internety!</string>
+    <string name="error_malformed">Nieobsługiwane kodowanie</string>
+    <string name="error_unsupported">Serwer nie obsługuje progresywnego pobierania</string>
+    <string name="error_time_out">To trwa za długo...</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="title_section1">KZNH</string>
+    <string name="title_section2">Kalendarz</string>
+    <string name="title_section3">Radio</string>
+    <string name="title_section4">Nagrania</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_example">Example action</string>
+    <string name="choose_year">Wybierz rok</string>
+    <string name="choose_speaker">Wybierz mówcę</string>
+    <string name="all_speakers">Wszyscy</string>
+    <string name="all_years">Wszystkie</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="back">Wróć</string>
+
+    <string-array name="radio_names_array">
+        <item>Radio KZNH</item>
+        <item>Kazania</item>
+        <item>Piosenki angielskie</item>
+        <item>Piosenki polskie</item>
+    </string-array>
+    <string-array name="radio_url_array">
+        <item>http://sc.4stream.pl:18772</item>
+        <item>http://radiointernetowe.net:9450</item>
+        <item>http://shoutcast.com.pl:9448</item>
+        <item>http://shoutcast.com.pl:9444</item>
+    </string-array>
+
+    <string-array name="months_array">
+        <item>styczeń</item>
+        <item>luty</item>
+        <item>marzec</item>
+        <item>kwiecień</item>
+        <item>maj</item>
+        <item>czerwiec</item>
+        <item>lipiec</item>
+        <item>sierpień</item>
+        <item>wrzesień</item>
+        <item>październik</item>
+        <item>listopad</item>
+        <item>grudzień</item>
+    </string-array>
+
+
+</resources>

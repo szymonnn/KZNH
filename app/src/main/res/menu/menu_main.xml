@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+    <item android:id="@+id/action_kznh" android:title="@string/action_kznh"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_pielgrzym_kazania" android:title="@string/action_pielgrzym_kazania"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_pielgrzym_en" android:title="@string/action_pielgrzym_en"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_pielgrzym_pl" android:title="@string/action_pielgrzym_pl"
+        android:orderInCategory="100" app:showAsAction="never" />
+</menu>
