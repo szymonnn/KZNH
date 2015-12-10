@@ -11,13 +11,7 @@
     <string name="angielskie_url">http://shoutcast.com.pl:9448</string>
     <string name="kazania_url">http://radiointernetowe.net:9450</string>
     <string name="error_unknown">Wystąpił nieoczekiwany błąd.</string>
-    <string name="error_server_died">Nie można połączyć się z serwerem.</string>
-    <string name="error_io">Wystąpił problem z połączeniem</string>
-    <string name="error_network">Włącz internety!</string>
-    <string name="error_malformed">Nieobsługiwane kodowanie</string>
-    <string name="error_unsupported">Serwer nie obsługuje progresywnego pobierania</string>
-    <string name="error_time_out">To trwa za długo...</string>
-    <string name="title_activity_main2">Main2Activity</string>
+    <string name="search">Szukaj...</string>
 
     <string name="title_section1">KZNH</string>
     <string name="title_section2">Kalendarz</string>
@@ -27,7 +21,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_example">Example action</string>
     <string name="choose_year">Wybierz rok</string>
     <string name="choose_speaker">Wybierz mówcę</string>
     <string name="all_speakers">Wszyscy</string>
@@ -63,6 +56,7 @@
         <item>listopad</item>
         <item>grudzień</item>
     </string-array>
+    <string name="title_activity_media_player">MediaPlayerActivity</string>
 
 
 </resources>

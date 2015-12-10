@@ -1,5 +1,7 @@
 package pl.kznh.radio.gson.record;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -68,12 +70,19 @@ public class RecordContainer {
 
     public ArrayList<Integer> getIndexesOfMatchingRecords(String text){
         ArrayList<Integer> indexArray = new ArrayList<>();
-        String [] keyWords = text.split("\\w+\\s");
-        int i = 0;
+        String [] keyWords = text.split("\\W");
+        int  i = 0;
+        for (String key : keyWords){
+            Log.i("KEY WORDS", key);
+        }
         for (String recordString : getRecordStrings()){
-            if (recordString.toLowerCase(Locale.getDefault()).contains(text)){
-                indexArray.add(i);
+            boolean shouldAddToArray = true;
+            for (String key : keyWords) {
+                if (!recordString.toLowerCase(Locale.getDefault()).contains(key)) {
+                    shouldAddToArray = false;
+                }
             }
+            if (shouldAddToArray) indexArray.add(i);
             i++;
         }
         return indexArray;
@@ -113,6 +122,15 @@ public class RecordContainer {
 
     public ArrayList<String> getRecordStrings(ArrayList<Integer> indexes) {
         ArrayList<String> array = getRecordStrings();
+        ArrayList<String> newArray = new ArrayList<>();
+        for (Integer index : indexes){
+            newArray.add(array.get(index));
+        }
+        return newArray;
+    }
+
+    public ArrayList<String> getRecordWebDirectories(ArrayList<Integer> indexes) {
+        ArrayList<String> array = getRecordWebDirectories();
         ArrayList<String> newArray = new ArrayList<>();
         for (Integer index : indexes){
             newArray.add(array.get(index));

@@ -14,7 +14,7 @@
         android:src="@drawable/icon_note"
         android:id="@+id/imageView"
         android:padding="@dimen/record_speaker_year_icon_padding"
-        android:layout_marginRight="@dimen/record_speaker_year_icon_padding"/>
+        android:layout_marginRight="@dimen/record_speaker_year_icon_padding" />
 <LinearLayout
     android:id="@+id/linearLayout"
     android:orientation="vertical"

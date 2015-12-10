@@ -38,11 +38,11 @@
 
         <EditText
             android:id="@+id/searchField"
-            android:lines="1"
+            android:singleLine="true"
             style="@style/RecordsFragmentForm"
             android:layout_weight="2"
-            android:layout_width="wrap_content"
-            android:hint="Szukaj..."
+            android:layout_width="0dp"
+            android:hint="@string/search"
             android:inputType="textVisiblePassword"/>
 
             <ImageButton
@@ -52,7 +52,7 @@
                 android:layout_weight="0.5"
                 android:src="@drawable/icon_speaker"
                 android:scaleType="fitCenter"
-                android:background="@android:color/transparent"
+                android:background="?android:attr/selectableItemBackground"
                 android:padding="@dimen/record_speaker_year_icon_padding" />
 
             <ImageButton
@@ -63,7 +63,7 @@
                 android:src="@drawable/icon_year"
                 android:scaleType="fitCenter"
                 android:padding="@dimen/record_speaker_year_icon_padding"
-                android:background="@android:color/transparent"
+                android:background="?android:attr/selectableItemBackground"
                 />
 
     </LinearLayout>
