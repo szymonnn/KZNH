@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -33,22 +34,26 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
 
-import pl.kznh.radio.activities.MediaPlayerActivity;
 import pl.kznh.radio.R;
+import pl.kznh.radio.activities.MediaPlayerActivity;
 import pl.kznh.radio.gson.record.Record;
 import pl.kznh.radio.gson.record.RecordContainer;
+import pl.kznh.radio.services.RecordPlayerService;
 import pl.kznh.radio.utils.RecordsAdapter;
 
 /**
  * Created by Szymon Nitecki on 2015-11-30.
  */
 public class RecordsFragment extends Fragment {
+
+    private static final String BASE_URL = "http://kznh.pl/";
 
     public static final String EXTRA_TITLE = "title";
 
@@ -115,15 +120,17 @@ public class RecordsFragment extends Fragment {
         }
     }
 
-    // method responsible for getting data from API after all showView() is called
+    // method responsible for getting data from API, after all showView() is called
     private void getData() {
         AsyncTask task = new AsyncTask(){
             @Override
             protected String doInBackground(Object[] params) {
                 try {
                     URL url = new URL("http://kznh.pl/nagrania/kazania/lib.json");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     URLConnection urlConnection = url.openConnection();
-                    InputStream inputStream = urlConnection.getInputStream();
+                    connection.setRequestMethod("GET");
+                    InputStream inputStream = connection.getInputStream();
                     StringBuilder buffer = new StringBuilder();
 
                     Reader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -210,8 +217,12 @@ public class RecordsFragment extends Fragment {
                 intent.putExtra(EXTRA_TITLE, mRecordContainer.getRecordTitles(mIndexesOfFilteredRecords).get(position));
                 intent.putExtra(EXTRA_SPEAKER, mRecordContainer.getRecordArtists(mIndexesOfFilteredRecords).get(position));
                 intent.putExtra(EXTRA_LENGTH, mRecordContainer.getRecordLengths(mIndexesOfFilteredRecords).get(position));
-                intent.putExtra(EXTRA_URL, mRecordContainer.getRecordWebDirectories(mIndexesOfFilteredRecords).get(position));
-                startActivity(intent);
+                intent.putExtra(EXTRA_URL, BASE_URL + mRecordContainer.getRecordWebDirectories(mIndexesOfFilteredRecords).get(position));
+                if (RecordPlayerService.isServiceRunning){
+                    Toast.makeText(getActivity(), R.string.close_current_player, Toast.LENGTH_SHORT).show();
+                } else {
+                    startActivity(intent);
+                }
             }
         });
 
@@ -281,7 +292,7 @@ public class RecordsFragment extends Fragment {
                         dialog.dismiss();
                     }
                 });
-                View view = getActivity().getLayoutInflater().inflate(R.layout.records_alert_dialog_title, null);
+                View view = getActivity().getLayoutInflater().inflate(R.layout.default_alert_dialog_title, null);
                 TextView titleView = (TextView) view.findViewById(R.id.titleView);
                 titleView.setText(title);
                 builder.setCustomTitle(view);

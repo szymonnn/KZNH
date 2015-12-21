@@ -17,4 +17,15 @@
     <dimen name="record_item_margin">4dp</dimen>
     <dimen name="record_speaker_year_icon_padding">8dp</dimen>
     <dimen name="record_speaker_year_icon_dmen">8dp</dimen>
+
+    <dimen name="media_player_control_panel_height">72dp</dimen>
+    <dimen name="seek_bar_width">224dp</dimen>
+    <dimen name="media_player_control_panel_icon_padding">16dp</dimen>
+    <dimen name="media_player_control_panel_small_button_height">40dp</dimen>
+    <dimen name="media_player_control_panel_small_icon_padding">10dp</dimen>
+    <dimen name="media_player_control_panel_margin_bottom_top">8dp</dimen>
+    <dimen name="media_player_control_panel_margin_left_right">6dp</dimen>
+    <dimen name="media_player_control_panel_time_text_size">12sp</dimen>
+    <dimen name="media_player_info_text_padding">8dp</dimen>
+    <dimen name="choose_radio_button_dimen">72dp</dimen>
 </resources>

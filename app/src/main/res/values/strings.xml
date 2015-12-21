@@ -12,6 +12,14 @@
     <string name="kazania_url">http://radiointernetowe.net:9450</string>
     <string name="error_unknown">Wystąpił nieoczekiwany błąd.</string>
     <string name="search">Szukaj...</string>
+    <string name="volume">Głośność:</string>
+    <string name="warning">Uwaga!</string>
+    <string name="stop_player_question">Czy chcesz zakończyć odtwarzanie?</string>
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
+    <string name="close_current_player">Najpierw wyłącz dotychczasowy odtwarzacz.</string>
+    <string name="action_close">Wyjdź</string>
+    <string name="choose_radio">WYBIERZ RADIO</string>
 
     <string name="title_section1">KZNH</string>
     <string name="title_section2">Kalendarz</string>
@@ -42,6 +50,13 @@
         <item>http://shoutcast.com.pl:9444</item>
     </string-array>
 
+    <string-array name="radio_owners_array">
+        <item>KZNH</item>
+        <item>Radio pielgrzym</item>
+        <item>Radio pielgrzym</item>
+        <item>Radio pielgrzym</item>
+    </string-array>
+
     <string-array name="months_array">
         <item>styczeń</item>
         <item>luty</item>
@@ -56,7 +71,7 @@
         <item>listopad</item>
         <item>grudzień</item>
     </string-array>
-    <string name="title_activity_media_player">MediaPlayerActivity</string>
+    <string name="title_activity_media_player">Odtwarzacz</string>
 
 
 </resources>

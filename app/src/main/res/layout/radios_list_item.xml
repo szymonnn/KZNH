@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/record_speaker_year_icon_padding"
+    >
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignTop="@+id/linearLayout"
+        android:layout_alignBottom="@+id/linearLayout"
+        android:src="@drawable/icon_note"
+        android:id="@+id/imageView"
+        android:padding="@dimen/record_speaker_year_icon_padding"
+        android:layout_marginRight="@dimen/record_speaker_year_icon_padding" />
+<LinearLayout
+    android:id="@+id/linearLayout"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_toRightOf="@+id/imageView"
+    android:layout_toEndOf="@+id/imageView">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/nameView"
+        android:textColor="?colorPrimary"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/ownerView"
+        android:layout_marginTop="@dimen/record_item_margin" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/lengthView"
+        android:gravity="end"
+        android:layout_marginTop="@dimen/record_item_margin"
+        android:visibility="gone"/>
+
+</LinearLayout>
+</RelativeLayout>
