@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<navigationModel
+  ns = "http://schemas.android.com?import=com.android.tools.idea.editors.navigation.model.*">
+  <locations  
+    class = "java.util.ArrayList">
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "pl.kznh.radio.activities.Main2Activity"/>
+      <point      
+        x = "1732"      
+        y = "344"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "pl.kznh.radio.activities.MediaPlayerActivity"/>
+      <point      
+        x = "236"      
+        y = "124"/>
+    </statePointEntry>
+  </locations>
+</navigationModel>
