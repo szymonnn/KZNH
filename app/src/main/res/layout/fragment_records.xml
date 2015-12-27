@@ -50,7 +50,7 @@
                 android:layout_width="@dimen/record_speaker_year_icon_dmen"
                 android:id="@+id/speakerButton"
                 android:layout_weight="0.5"
-                android:src="@drawable/icon_speaker"
+                android:src="@drawable/icon_artist"
                 android:scaleType="fitCenter"
                 android:background="?android:attr/selectableItemBackground"
                 android:padding="@dimen/record_speaker_year_icon_padding" />

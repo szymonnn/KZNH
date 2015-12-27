@@ -55,6 +55,10 @@ public class RecordsAdapter extends ArrayAdapter<String> {
         holder.titleView = (TextView) convertView.findViewById(R.id.titleView);
         holder.lengthView = (TextView)convertView.findViewById(R.id.lengthView);
 
+        holder.speakerView.setTypeface(Constants.robotoCondensed);
+        holder.titleView.setTypeface(Constants.robotoCondensed);
+        holder.lengthView.setTypeface(Constants.robotoCondensed);
+
         holder.speakerView.setText(mSpeakers.get(position));
         holder.titleView.setText(mTitles.get(position));
         holder.lengthView.setText(mLengths.get(position));

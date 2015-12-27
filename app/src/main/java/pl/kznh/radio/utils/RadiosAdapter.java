@@ -47,6 +47,11 @@ public class RadiosAdapter extends ArrayAdapter<String> {
         holder.nameView = (TextView) convertView.findViewById(R.id.nameView);
         holder.lengthView = (TextView)convertView.findViewById(R.id.lengthView);
 
+        holder.ownerView.setTypeface(Constants.robotoCondensed);
+        holder.lengthView.setTypeface(Constants.robotoCondensed);
+        holder.nameView.setTypeface(Constants.robotoCondensed);
+
+
         holder.ownerView.setText(mOwners[position]);
         holder.nameView.setText(mNames[position]);
 

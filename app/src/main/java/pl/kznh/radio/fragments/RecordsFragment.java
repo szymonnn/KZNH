@@ -1,21 +1,29 @@
 package pl.kznh.radio.fragments;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -36,32 +44,22 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
 
 import pl.kznh.radio.R;
 import pl.kznh.radio.activities.MediaPlayerActivity;
-import pl.kznh.radio.gson.record.Record;
 import pl.kznh.radio.gson.record.RecordContainer;
 import pl.kznh.radio.services.RecordPlayerService;
+import pl.kznh.radio.utils.Constants;
 import pl.kznh.radio.utils.RecordsAdapter;
+import pl.kznh.radio.utils.TypefaceSpan;
 
 /**
  * Created by Szymon Nitecki on 2015-11-30.
  */
 public class RecordsFragment extends Fragment {
-
-    private static final String BASE_URL = "http://kznh.pl/";
-
-    public static final String EXTRA_TITLE = "title";
-
-    public static final String EXTRA_SPEAKER = "speaker";
-
-    public static final String EXTRA_LENGTH = "length";
-
-    public static final String EXTRA_URL = "url";
 
     ImageButton mSpeakerButton;
 
@@ -79,18 +77,18 @@ public class RecordsFragment extends Fragment {
 
     private RecordContainer mRecordContainer;
 
-    private ArrayList<Record> mRecords;
-
     private ArrayList<Integer> mIndexesOfFilteredRecords;
 
     private String mChoosenYear = "";
 
     private String mChoosenSpeaker = "";
 
+    private SharedPreferences mSharedPreferences;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_records, container, false);
-
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         setActionBarTitle(R.string.title_section4);
 
         bindViews(view);
@@ -109,6 +107,9 @@ public class RecordsFragment extends Fragment {
         mErrorTextView = (TextView) view.findViewById(R.id.errorTextView);
         mSearchField = (EditText) view.findViewById(R.id.searchField);
         mFormLayout = (LinearLayout) view.findViewById(R.id.formLayout);
+
+        mErrorTextView.setTypeface(Constants.robotoCondensed);
+        mSearchField.setTypeface(Constants.robotoCondensed);
     }
 
     private void setProgressBarVisible(boolean b) {
@@ -128,7 +129,6 @@ public class RecordsFragment extends Fragment {
                 try {
                     URL url = new URL("http://kznh.pl/nagrania/kazania/lib.json");
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    URLConnection urlConnection = url.openConnection();
                     connection.setRequestMethod("GET");
                     InputStream inputStream = connection.getInputStream();
                     StringBuilder buffer = new StringBuilder();
@@ -176,12 +176,11 @@ public class RecordsFragment extends Fragment {
                         jsonObject.put("items", jsonArray);
                         Gson gson = new Gson();
                         mRecordContainer = gson.fromJson(jsonObject.toString(), RecordContainer.class);
-                        mRecords = mRecordContainer.getRecordArray();
-                        Log.i("hjln", mRecords.get(0).getArtist() + " "
-                                + mRecords.get(0).getLength() + " "
-                                + mRecords.get(0).getWebDirectory() + " "
-                                + mRecords.get(0).getTitle() + " "
-                                + mRecords.get(0).getYear() + " ");
+//                        Log.i("hjln", mRecords.get(0).getArtist() + " "
+//                                + mRecords.get(0).getLength() + " "
+//                                + mRecords.get(0).getWebDirectory() + " "
+//                                + mRecords.get(0).getTitle() + " "
+//                                + mRecords.get(0).getYear() + " ");
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -213,15 +212,22 @@ public class RecordsFragment extends Fragment {
         mRecordsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                boolean shouldShowDialog = mSharedPreferences.getBoolean(Constants.PREF_SHOW_DIALOG, true);
                 Intent intent = new Intent(getActivity(), MediaPlayerActivity.class);
-                intent.putExtra(EXTRA_TITLE, mRecordContainer.getRecordTitles(mIndexesOfFilteredRecords).get(position));
-                intent.putExtra(EXTRA_SPEAKER, mRecordContainer.getRecordArtists(mIndexesOfFilteredRecords).get(position));
-                intent.putExtra(EXTRA_LENGTH, mRecordContainer.getRecordLengths(mIndexesOfFilteredRecords).get(position));
-                intent.putExtra(EXTRA_URL, BASE_URL + mRecordContainer.getRecordWebDirectories(mIndexesOfFilteredRecords).get(position));
-                if (RecordPlayerService.isServiceRunning){
+                intent.putExtra(Constants.EXTRA_TITLE, mRecordContainer.getRecordTitles(mIndexesOfFilteredRecords).get(position));
+                intent.putExtra(Constants.EXTRA_SPEAKER, mRecordContainer.getRecordArtists(mIndexesOfFilteredRecords).get(position));
+                intent.putExtra(Constants.EXTRA_LENGTH, mRecordContainer.getRecordLengths(mIndexesOfFilteredRecords).get(position));
+                intent.putExtra(Constants.EXTRA_URL, Constants.BASE_URL + mRecordContainer.getRecordWebDirectories(mIndexesOfFilteredRecords).get(position));
+                if (RecordPlayerService.isServiceRunning) {
                     Toast.makeText(getActivity(), R.string.close_current_player, Toast.LENGTH_SHORT).show();
+                } else if (!isNetworkAvailable()) {
+                    Toast.makeText(getActivity(), R.string.no_internet, Toast.LENGTH_SHORT).show();
                 } else {
-                    startActivity(intent);
+                    if (!isWifiConnected() && shouldShowDialog) {
+                        showInternetUsageDialog(intent);
+                    } else {
+                        startActivity(intent);
+                    }
                 }
             }
         });
@@ -320,6 +326,58 @@ public class RecordsFragment extends Fragment {
     }
 
     public void setActionBarTitle (int titleRes) {
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(titleRes);
+        SpannableString s = new SpannableString(getString(titleRes));
+        s.setSpan(new TypefaceSpan(getActivity(), Constants.FONT_NAME), 0, s.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(s);
+    }
+
+    private boolean isWifiConnected () {
+        ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+        return activeNetwork != null && (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI);
+    }
+
+    private boolean isNetworkAvailable (){
+        ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+        return activeNetwork != null;
+    }
+
+    private void showInternetUsageDialog(final Intent intent) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View view = inflater.inflate(R.layout.internet_usage_dialog, null);
+        final CheckBox checkBox = (CheckBox)view.findViewById(R.id.checkBox);
+        TextView warningTextView = (TextView)view.findViewById(R.id.textView2);
+        checkBox.setTypeface(Constants.robotoCondensed);
+        warningTextView.setTypeface(Constants.robotoCondensed);
+        builder.setView(view);
+        builder.setPositiveButton(R.string.understood, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (checkBox.isChecked()) {
+                    mSharedPreferences.edit().putBoolean(Constants.PREF_SHOW_DIALOG, false).apply();
+                    dialog.dismiss();
+                }
+                startActivity(intent);
+            }
+        });
+        View titleView = inflater.inflate(R.layout.default_alert_dialog_title, null);
+        TextView titleTextView = (TextView) titleView.findViewById(R.id.titleView);
+        titleTextView.setTypeface(Constants.robotoCondensed);
+        titleTextView.setText(R.string.warning);
+        builder.setCustomTitle(titleView);
+        builder.setNegativeButton(R.string.go_to_preferences, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (checkBox.isChecked()) {
+                    mSharedPreferences.edit().putBoolean(Constants.PREF_SHOW_DIALOG, false).apply();
+                }
+                startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 0);
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

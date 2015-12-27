@@ -49,6 +49,9 @@ public class CalendarDialogAdapter extends ArrayAdapter<String> {
         holder.timeView = (TextView) convertView.findViewById(R.id.timeView);
         holder.descriptionView = (TextView) convertView.findViewById(R.id.descriptionView);
 
+        holder.timeView.setTypeface(Constants.robotoCondensed);
+        holder.descriptionView.setTypeface(Constants.robotoCondensed);
+
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 
         holder.timeView.setText(sdf.format(mStartTimes.get(position)) + " - " + sdf.format(mEndTimes.get(position)));

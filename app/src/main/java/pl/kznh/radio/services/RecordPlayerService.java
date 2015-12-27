@@ -7,28 +7,12 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.io.IOException;
 
-import pl.kznh.radio.activities.MediaPlayerActivity;
-import pl.kznh.radio.fragments.RecordsFragment;
+import pl.kznh.radio.utils.Constants;
 
 public class RecordPlayerService extends Service {
-
-    public static final String NOTIFICATION = "pl.kznh.radio.services";
-
-    public static final String MEDIA_PLAYER_RESULT_WHAT = "mp-what";
-
-    public static final String MEDIA_PLAYER_RESULT_EXTRA = "mp-extra";
-
-    public static final String MEDIA_PLAYER_ACTION = "action";
-
-    public static final int ACTION_ON_ERROR = 0;
-
-    public static final int ACTION_ON_BUFFERING_UPDATE = 1;
-
-    public static final String MEDIA_PLAYER_BUFFERING_PERCENTAGE = "buffering-percentage";
 
     private MediaPlayer mMediaPlayer;
 
@@ -49,10 +33,10 @@ public class RecordPlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("SERVICE", "NOT RUNNING - INITIALIZING");
+        //Log.i("SERVICE", "NOT RUNNING - INITIALIZING");
         if (intent != null) {
             Bundle extras = intent.getExtras();
-            mUrl = extras.getString(RecordsFragment.EXTRA_URL);
+            mUrl = extras.getString(Constants.EXTRA_URL);
             initializePlayer();
             isServiceRunning = true;
         } else {
@@ -69,7 +53,7 @@ public class RecordPlayerService extends Service {
     @Override
     public void onRebind(Intent intent) {
         super.onRebind(intent);
-        Log.i("SERVICE", "RUNNING - REINITIALIZING");
+        //Log.i("SERVICE", "RUNNING - REINITIALIZING");
         reInitializePlayer();
     }
 
@@ -82,30 +66,30 @@ public class RecordPlayerService extends Service {
         super.onDestroy();
         stopSelf();
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.cancel(MediaPlayerActivity.NOTIFICATION_ID);
+        notificationManager.cancel(Constants.NOTIFICATION_ID);
         isServiceRunning = false;
-        Log.i("SERVICE", "DESTROYED");
+        //Log.i("SERVICE", "DESTROYED");
     }
 
     private void reInitializePlayer() {
-        Log.i("SERVICE", "reInitializePlayer()");
-        handleMediaPlayerErrorListener(ACTION_ON_ERROR, 0, 0);
+        //Log.i("SERVICE", "reInitializePlayer()");
+        handleMediaPlayerErrorListener(Constants.ACTION_ON_ERROR, 0, 0);
         mMediaPlayer.setOnPreparedListener(new android.media.MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mediaplayer) {
-                handleMediaPlayerErrorListener(ACTION_ON_ERROR, 0, 0);
+                handleMediaPlayerErrorListener(Constants.ACTION_ON_ERROR, 0, 0);
             }
         });
         mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, final int what, final int extra) {
-                handleMediaPlayerErrorListener(ACTION_ON_ERROR, what, extra);
+                handleMediaPlayerErrorListener(Constants.ACTION_ON_ERROR, what, extra);
                 return false;
             }
         });
         mMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                handleMediaPlayerBufferingUpdateListener(ACTION_ON_BUFFERING_UPDATE, percent);
+                handleMediaPlayerBufferingUpdateListener(Constants.ACTION_ON_BUFFERING_UPDATE, percent);
             }
         });
     }
@@ -124,26 +108,30 @@ public class RecordPlayerService extends Service {
         mMediaPlayer.prepareAsync();
         mMediaPlayer.setOnPreparedListener(new android.media.MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mediaplayer) {
-                handleMediaPlayerErrorListener(ACTION_ON_ERROR, 0, 0);
+                handleMediaPlayerErrorListener(Constants.ACTION_ON_ERROR, 0, 0);
             }
         });
         mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, final int what, final int extra) {
-                handleMediaPlayerErrorListener(ACTION_ON_ERROR, what, extra);
+                handleMediaPlayerErrorListener(Constants.ACTION_ON_ERROR, what, extra);
                 return false;
             }
         });
         mMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                handleMediaPlayerBufferingUpdateListener(ACTION_ON_BUFFERING_UPDATE, percent);
+                handleMediaPlayerBufferingUpdateListener(Constants.ACTION_ON_BUFFERING_UPDATE, percent);
             }
         });
     }
 
     public void stopMediaPlayer() {
         mMediaPlayer.stop();
+    }
+
+    public void releaseMediaPlayer() {
+        mMediaPlayer.release();
     }
 
     public void pauseMediaPlayer () {
@@ -175,17 +163,17 @@ public class RecordPlayerService extends Service {
     }
 
     private void handleMediaPlayerErrorListener(int action, int what, int extra) {
-        Intent intent = new Intent(NOTIFICATION);
-        intent.putExtra(MEDIA_PLAYER_ACTION, action);
-        intent.putExtra(MEDIA_PLAYER_RESULT_EXTRA, extra);
-        intent.putExtra(MEDIA_PLAYER_RESULT_WHAT, what);
+        Intent intent = new Intent(Constants.NOTIFICATION);
+        intent.putExtra(Constants.MEDIA_PLAYER_ACTION, action);
+        intent.putExtra(Constants.MEDIA_PLAYER_RESULT_EXTRA, extra);
+        intent.putExtra(Constants.MEDIA_PLAYER_RESULT_WHAT, what);
         sendBroadcast(intent);
     }
 
     private void handleMediaPlayerBufferingUpdateListener(int action, int percent) {
-        Intent intent = new Intent(NOTIFICATION);
-        intent.putExtra(MEDIA_PLAYER_ACTION, action);
-        intent.putExtra(MEDIA_PLAYER_BUFFERING_PERCENTAGE, percent);
+        Intent intent = new Intent(Constants.NOTIFICATION);
+        intent.putExtra(Constants.MEDIA_PLAYER_ACTION, action);
+        intent.putExtra(Constants.MEDIA_PLAYER_BUFFERING_PERCENTAGE, percent);
         sendBroadcast(intent);
     }
 

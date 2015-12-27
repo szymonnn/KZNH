@@ -19,7 +19,16 @@
     <string name="no">Nie</string>
     <string name="close_current_player">Najpierw wyłącz dotychczasowy odtwarzacz.</string>
     <string name="action_close">Wyjdź</string>
-    <string name="choose_radio">WYBIERZ RADIO</string>
+    <string name="choose_radio_uppercase">WYBIERZ RADIO</string>
+    <string name="choose_radio">Wybierz radio</string>
+    <string name="facebook">FACEBOOK</string>
+    <string name="kznhpl">KZNH.PL</string>
+    <string name="app_title">KOŚCIÓŁ ZIELONOŚWIĄTKOWY \n NOWA HUTA</string>
+    <string name="go_to_preferences">ustawienia</string>
+    <string name="understood">rozumiem</string>
+    <string name="internet_usage_warning">Twój operator może naliczyć dodatkowe koszty za połączenie z internetem. Jeżeli to możliwe połącz się przez wifi.</string>
+    <string name="dont_show">Nie pokazuj tego więcej</string>
+    <string name="no_internet">Nie masz połączenia z internetem.</string>
 
     <string name="title_section1">KZNH</string>
     <string name="title_section2">Kalendarz</string>

@@ -21,7 +21,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
-import android.util.Log;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,13 +39,11 @@ import android.widget.Toast;
 import java.util.concurrent.TimeUnit;
 
 import pl.kznh.radio.R;
-import pl.kznh.radio.fragments.RadioFragment;
-import pl.kznh.radio.fragments.RecordsFragment;
 import pl.kznh.radio.services.RecordPlayerService;
+import pl.kznh.radio.utils.Constants;
+import pl.kznh.radio.utils.TypefaceSpan;
 
 public class MediaPlayerActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener{
-
-    public static final int NOTIFICATION_ID = 123;
 
     private String mTitle;
 
@@ -96,6 +95,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_player);
+        setActionBarTitle(R.string.title_activity_media_player);
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         settingRecordParameters();
@@ -113,6 +113,13 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         mVolumeUpButton = (ImageButton) findViewById(R.id.volumeUPButton);
         mSeekBar = (SeekBar) findViewById(R.id.seekBar);
         mChooseRadioButton = (Button) findViewById(R.id.changeRadioButton);
+
+        mErrorTextVew.setTypeface(Constants.robotoCondensed);
+        mTitleView.setTypeface(Constants.robotoCondensed);
+        mSpeakerView.setTypeface(Constants.robotoCondensed);
+        mProgressTimeView.setTypeface(Constants.robotoCondensed);
+        mLengthView.setTypeface(Constants.robotoCondensed);
+        mChooseRadioButton.setTypeface(Constants.robotoCondensed);
 
 
 
@@ -134,10 +141,10 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         configureBroadcastReceiver();
 
         if (RecordPlayerService.isServiceRunning){
-            Log.i("MEDIA PLAYER SERVICE", "is running");
+            //Log.i("MEDIA PLAYER SERVICE", "is running");
             bindPlayerService();
         } else {
-            Log.i("MEDIA PLAYER SERVICE", "is not running");
+            //Log.i("MEDIA PLAYER SERVICE", "is not running");
             createMediaPlayerService();
         }
     }
@@ -162,13 +169,13 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void handleBufferingUpdate(Bundle bundle) {
-        final int percent = bundle.getInt(RecordPlayerService.MEDIA_PLAYER_BUFFERING_PERCENTAGE);
+        final int percent = bundle.getInt(Constants.MEDIA_PLAYER_BUFFERING_PERCENTAGE);
         mSeekBar.setSecondaryProgress((int) (mService.getLength() * (percent / 100.0f)));
     }
 
     private void handleError(Bundle bundle) {
-        final int what = bundle.getInt(RecordPlayerService.MEDIA_PLAYER_RESULT_WHAT);
-        final int extra = bundle.getInt(RecordPlayerService.MEDIA_PLAYER_RESULT_EXTRA);
+        final int what = bundle.getInt(Constants.MEDIA_PLAYER_RESULT_WHAT);
+        final int extra = bundle.getInt(Constants.MEDIA_PLAYER_RESULT_EXTRA);
         if (what == 0 && extra == 0) {
             // everything is ok
             mLength = mService.getLength();
@@ -254,12 +261,12 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void onReceive(Context context, Intent intent) {
                     Bundle bundle = intent.getExtras();
-                    int actionId = bundle.getInt(RecordPlayerService.MEDIA_PLAYER_ACTION);
+                    int actionId = bundle.getInt(Constants.MEDIA_PLAYER_ACTION);
                     switch (actionId) {
-                        case RecordPlayerService.ACTION_ON_ERROR:
+                        case Constants.ACTION_ON_ERROR:
                             handleError(bundle);
                             break;
-                        case RecordPlayerService.ACTION_ON_BUFFERING_UPDATE:
+                        case Constants.ACTION_ON_BUFFERING_UPDATE:
                             handleBufferingUpdate(bundle);
                             break;
                     }
@@ -270,7 +277,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(mReceiver, new IntentFilter(RecordPlayerService.NOTIFICATION));
+        registerReceiver(mReceiver, new IntentFilter(Constants.NOTIFICATION));
         mNotificationManager.cancelAll();
     }
 
@@ -308,10 +315,10 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
                         .setOngoing(true)
                         .setAutoCancel(true);
         Intent resultIntent = new Intent(this, MediaPlayerActivity.class);
-        resultIntent.putExtra(RecordsFragment.EXTRA_TITLE, mTitle);
-        resultIntent.putExtra(RecordsFragment.EXTRA_SPEAKER, mSpeaker);
-        resultIntent.putExtra(RecordsFragment.EXTRA_URL, mUrl);
-        resultIntent.putExtra(RadioFragment.EXTRA_IS_RADIO, mIsRadio);
+        resultIntent.putExtra(Constants.EXTRA_TITLE, mTitle);
+        resultIntent.putExtra(Constants.EXTRA_SPEAKER, mSpeaker);
+        resultIntent.putExtra(Constants.EXTRA_URL, mUrl);
+        resultIntent.putExtra(Constants.EXTRA_IS_RADIO, mIsRadio);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(MediaPlayerActivity.class);
         stackBuilder.addNextIntent(resultIntent);
@@ -321,7 +328,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
         mBuilder.setContentIntent(resultPendingIntent);
-        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        mNotificationManager.notify(Constants.NOTIFICATION_ID, mBuilder.build());
     }
 
     public static Bitmap getLargeIcon(Context context){
@@ -334,12 +341,12 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
 
     private void createMediaPlayerService() {
         Intent intent = new Intent(this, RecordPlayerService.class);
-        intent.putExtra(RecordsFragment.EXTRA_URL, mUrl);
+        intent.putExtra(Constants.EXTRA_URL, mUrl);
         mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 mService = ((RecordPlayerService.MyBinder) service).getService();
-                Log.i("SERVICE", "CONNECTED" + mService.toString());
+                //Log.i("SERVICE", "CONNECTED" + mService.toString());
             }
 
             @Override
@@ -353,12 +360,12 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
 
     private void bindPlayerService() {
         Intent intent = new Intent(this, RecordPlayerService.class);
-        intent.putExtra(RecordsFragment.EXTRA_URL, mUrl);
+        intent.putExtra(Constants.EXTRA_URL, mUrl);
         mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 mService = ((RecordPlayerService.MyBinder) service).getService();
-                Log.i("SERVICE", "RECONNECTED" + mService.toString());
+                //Log.i("SERVICE", "RECONNECTED" + mService.toString());
             }
 
             @Override
@@ -371,11 +378,11 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
 
     private void settingRecordParameters() {
         Bundle extras = getIntent().getExtras();
-        mTitle = extras.getString(RecordsFragment.EXTRA_TITLE);
-        mSpeaker = extras.getString(RecordsFragment.EXTRA_SPEAKER);
+        mTitle = extras.getString(Constants.EXTRA_TITLE);
+        mSpeaker = extras.getString(Constants.EXTRA_SPEAKER);
         //mLength = extras.getString(RecordsFragment.EXTRA_LENGTH);
-        mUrl = extras.getString(RecordsFragment.EXTRA_URL);
-        mIsRadio = extras.getBoolean(RadioFragment.EXTRA_IS_RADIO);
+        mUrl = extras.getString(Constants.EXTRA_URL);
+        mIsRadio = extras.getBoolean(Constants.EXTRA_IS_RADIO);
     }
 
     private void setProgressBarVisible(boolean b) {
@@ -487,7 +494,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
                 mTitle = radioNames[which];
                 mTitleView.setText(mTitle);
                 mSpeakerView.setText(mSpeaker);
-                mService.pauseMediaPlayer();
+                mService.releaseMediaPlayer();
                 mService.setUrl(urlArray[which]);
                 mService.initializePlayer();
 
@@ -495,5 +502,12 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    public void setActionBarTitle (int titleRes) {
+        SpannableString s = new SpannableString(getString(titleRes));
+        s.setSpan(new TypefaceSpan(this, Constants.FONT_NAME), 0, s.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ((AppCompatActivity) this).getSupportActionBar().setTitle(s);
     }
 }

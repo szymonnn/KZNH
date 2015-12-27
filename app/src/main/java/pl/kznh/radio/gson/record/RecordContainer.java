@@ -1,7 +1,5 @@
 package pl.kznh.radio.gson.record;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -72,9 +70,9 @@ public class RecordContainer {
         ArrayList<Integer> indexArray = new ArrayList<>();
         String [] keyWords = text.split("\\W");
         int  i = 0;
-        for (String key : keyWords){
-            Log.i("KEY WORDS", key);
-        }
+//        for (String key : keyWords){
+//            Log.i("KEY WORDS", key);
+//        }
         for (String recordString : getRecordStrings()){
             boolean shouldAddToArray = true;
             for (String key : keyWords) {

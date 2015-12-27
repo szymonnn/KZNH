@@ -44,6 +44,8 @@ public class NavigationDrawerAdapter extends ArrayAdapter<String> {
         holder.iconView = (ImageView) convertView.findViewById(R.id.iconView);
         holder.titleView = (TextView) convertView.findViewById(R.id.titleView);
 
+        holder.titleView.setTypeface(Constants.robotoCondensed);
+
         holder.iconView.setImageResource(mIconsRes[position]);
         holder.titleView.setText(mTitles[position]);
 

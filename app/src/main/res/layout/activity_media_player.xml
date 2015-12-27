@@ -13,7 +13,7 @@
 
     <Button
         android:textColor="#FFFFFF"
-        android:text="@string/choose_radio"
+        android:text="@string/choose_radio_uppercase"
         android:id="@+id/changeRadioButton"
         android:layout_width="@dimen/choose_radio_button_dimen"
         android:layout_height="@dimen/choose_radio_button_dimen"

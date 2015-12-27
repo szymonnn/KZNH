@@ -1,12 +1,14 @@
 package pl.kznh.radio.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,8 +42,10 @@ import pl.kznh.radio.R;
 import pl.kznh.radio.gson.calendar.Event;
 import pl.kznh.radio.gson.calendar.EventsContainer;
 import pl.kznh.radio.utils.CalendarDialogAdapter;
+import pl.kznh.radio.utils.Constants;
 import pl.kznh.radio.utils.CurrentDayDecorator;
 import pl.kznh.radio.utils.EventDecorator;
+import pl.kznh.radio.utils.TypefaceSpan;
 import pl.kznh.radio.utils.VolleySingleton;
 
 /**
@@ -49,13 +53,7 @@ import pl.kznh.radio.utils.VolleySingleton;
  */
 public class CalendarFragment extends Fragment {
 
-    public static final String GOOGLE_API_KEY = "AIzaSyDImE-l31E2GFbELJhgHyYLP8KWAaJLyCI";
-
-    public static final long TIME_RADIUS = 15778476 * 1000L;//half year
-
     private ArrayList<Event> mEvents;
-
-    private MaterialCalendarView mCalendar;
 
     private ImageView mProgressView;
 
@@ -72,12 +70,14 @@ public class CalendarFragment extends Fragment {
         mRootLayout = view;
         mProgressView = (ImageView) view.findViewById(R.id.progressView);
         mErrorTextView = (TextView) view.findViewById(R.id.errorTextView);
+
+        mErrorTextView.setTypeface(Constants.robotoCondensed);
         setActionBarTitle(R.string.title_section2);
 
         Animation rotateAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_animation);
         mProgressView.startAnimation(rotateAnimation);
         getData();
-        Log.i("dfghjhfd", getMinTime() + " " + getMaxTime());
+        //Log.i("dfghjhfd", getMinTime() + " " + getMaxTime());
         //new ApiSimulator().executeOnExecutor(Executors.newSingleThreadExecutor());
         return view;
     }
@@ -119,7 +119,7 @@ public class CalendarFragment extends Fragment {
 
     private String getMinTime (){
         Date date = new Date();
-        date.setTime(System.currentTimeMillis() - TIME_RADIUS);
+        date.setTime(System.currentTimeMillis() - Constants.TIME_RADIUS);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         String minTime = sdf.format(date);
         return minTime + "Z";
@@ -127,7 +127,7 @@ public class CalendarFragment extends Fragment {
 
     private String getMaxTime (){
         Date date = new Date();
-        date.setTime(System.currentTimeMillis() + (2 * TIME_RADIUS));
+        date.setTime(System.currentTimeMillis() + (2 * Constants.TIME_RADIUS));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         String maxTime = sdf.format(date);
         return maxTime + "Z";
@@ -135,25 +135,25 @@ public class CalendarFragment extends Fragment {
 
     private void createCalendar() {
         try {
-            mCalendar = new MaterialCalendarView(getContext());
-            mCalendar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            mCalendar.setShowOtherDates(MaterialCalendarView.SHOW_ALL);
-            mCalendar.setSelectionColor(ContextCompat.getColor(getContext(), R.color.primary));
-            mCalendar.setArrowColor(ContextCompat.getColor(getContext(), R.color.primary));
-            mCalendar.addDecorator(new CurrentDayDecorator(CalendarDay.from(new Date()), getActivity()));
-            mCalendar.setVisibility(View.VISIBLE);
-            mCalendar.setTitleMonths(R.array.months_array);
-            mCalendar.addDecorator(new EventDecorator(ContextCompat.getColor(getContext(), R.color.primary_dark), getDaysToDecorate()));
-            mCalendar.setOnDateChangedListener(new OnDateSelectedListener() {
+            MaterialCalendarView calendar = new MaterialCalendarView(getContext());
+            calendar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            calendar.setShowOtherDates(MaterialCalendarView.SHOW_ALL);
+            calendar.setSelectionColor(ContextCompat.getColor(getContext(), R.color.primary));
+            calendar.setArrowColor(ContextCompat.getColor(getContext(), R.color.primary));
+            calendar.addDecorator(new CurrentDayDecorator(CalendarDay.from(new Date()), getActivity()));
+            calendar.setVisibility(View.VISIBLE);
+            calendar.setTitleMonths(R.array.months_array);
+            calendar.addDecorator(new EventDecorator(ContextCompat.getColor(getContext(), R.color.primary_dark), getDaysToDecorate()));
+            calendar.setOnDateChangedListener(new OnDateSelectedListener() {
                 @Override
-                public void onDateSelected(MaterialCalendarView materialCalendarView, final CalendarDay calendarDay, boolean b) {
+                public void onDateSelected(@NonNull MaterialCalendarView materialCalendarView, final CalendarDay calendarDay, boolean b) {
                     if (getDaysToDecorate().contains(calendarDay)) {
                         createDialog(calendarDay);
                     }
                 }
             });
 
-            mRootLayout.addView(mCalendar);
+            mRootLayout.addView(calendar);
         } catch (NullPointerException e){
             e.printStackTrace();
         }
@@ -243,7 +243,8 @@ public class CalendarFragment extends Fragment {
             e.printStackTrace();
         }
 
-        String url = "https://www.googleapis.com/calendar/v3/calendars/f4v2gn75ptsmdg2f2kef6rf6ds%40group.calendar.google.com/events" +
+        //Log.i("CREATING URL", url);
+        return "https://www.googleapis.com/calendar/v3/calendars/f4v2gn75ptsmdg2f2kef6rf6ds%40group.calendar.google.com/events" +
                 "?maxResults=500" +
                 "&timeMax=" + maxTime +
                 "&timeMin=" + minTime +
@@ -251,12 +252,13 @@ public class CalendarFragment extends Fragment {
                 "&orderBy=startTime" +
                 "&singleEvents=true" +
                 "&fields=items(end%2Cstart%2Csummary)" +
-                "&key=" + GOOGLE_API_KEY;
-        Log.i("CREATING URL", url);
-        return url;
+                "&key=" + Constants.GOOGLE_API_KEY;
     }
 
     public void setActionBarTitle (int titleRes) {
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(titleRes);
+        SpannableString s = new SpannableString(getString(titleRes));
+        s.setSpan(new TypefaceSpan(getActivity(), Constants.FONT_NAME), 0, s.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(s);
     }
 }
