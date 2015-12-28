@@ -33,6 +33,7 @@
         <activity
             android:screenOrientation="portrait"
             android:name=".activities.MediaPlayerActivity"
+            android:launchMode="singleTask"
             android:label="@string/title_activity_media_player">
         </activity>
 

@@ -143,6 +143,7 @@ public class CalendarFragment extends Fragment {
             calendar.addDecorator(new CurrentDayDecorator(CalendarDay.from(new Date()), getActivity()));
             calendar.setVisibility(View.VISIBLE);
             calendar.setTitleMonths(R.array.months_array);
+            calendar.setShowOtherDates(MaterialCalendarView.SHOW_NONE);
             calendar.addDecorator(new EventDecorator(ContextCompat.getColor(getContext(), R.color.primary_dark), getDaysToDecorate()));
             calendar.setOnDateChangedListener(new OnDateSelectedListener() {
                 @Override

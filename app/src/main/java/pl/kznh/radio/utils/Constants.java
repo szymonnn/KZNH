@@ -51,5 +51,16 @@ public class Constants {
 
     public static final String PREF_SHOW_DIALOG = "should-show-internet-usage-dialog";
 
+    public static final String EXTRA_ACTION_FROM_NOTIFICATION = "action-from-notification";
+
+    public static final int NOT_ACTION = 0;
+
+    public static final int ACTION_FROM_NOTIFICATION_STOP_SERVICE = 11;
+
+    public static final int ACTION_FROM_NOTIFICATION_PLAY = 12;
+
+    public static final int ACTION_FROM_NOTIFICATION_PAUSE = 13;
+
+
     public static Typeface robotoCondensed;
 }

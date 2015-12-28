@@ -24,6 +24,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import pl.kznh.radio.R;
 import pl.kznh.radio.activities.MediaPlayerActivity;
 import pl.kznh.radio.services.RecordPlayerService;
@@ -34,7 +37,7 @@ import pl.kznh.radio.utils.TypefaceSpan;
 /**
  * Created by SzymonN on 2015-11-30.
  */
-public class RadioFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class RadioFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
     private String [] mRadioNames;
 
@@ -42,17 +45,24 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
 
     private SharedPreferences mSharedPreferences;
 
+    private boolean mShouldShowDialog;
+
+    private String[] mUrlArray;
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_radio, container, false);
         setActionBarTitle(R.string.choose_radio);
+        mUrlArray = getResources().getStringArray(R.array.radio_url_array);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mShouldShowDialog = mSharedPreferences.getBoolean(Constants.PREF_SHOW_DIALOG, true);
         ListView radiosList = (ListView) view.findViewById(R.id.radiosList);
         mRadioNames = getResources().getStringArray(R.array.radio_names_array);
         mRadioOwners = getResources().getStringArray(R.array.radio_owners_array);
         radiosList.setOnItemClickListener(this);
+        radiosList.setOnItemLongClickListener(this);
         RadiosAdapter adapter = new RadiosAdapter(getActivity(), android.R.layout.simple_list_item_1, mRadioNames, mRadioOwners);
         radiosList.setAdapter(adapter);
         return view;
@@ -65,25 +75,40 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String [] urlArray = getResources().getStringArray(R.array.radio_url_array);
-        boolean shouldShowDialog = mSharedPreferences.getBoolean(Constants.PREF_SHOW_DIALOG, true);
+        if (position == 0 && !shouldOpenKznhRadio()){
+            Toast.makeText(getActivity(), R.string.only_sunday, Toast.LENGTH_LONG).show();
+        } else {
+            tryToStartActivity(position);
+        }
+    }
+
+    private void tryToStartActivity(int position) {
         Intent intent = new Intent(getActivity(), MediaPlayerActivity.class);
         intent.putExtra(Constants.EXTRA_TITLE, mRadioNames[position]);
         intent.putExtra(Constants.EXTRA_SPEAKER, mRadioOwners[position]);
         intent.putExtra(Constants.EXTRA_LENGTH, 0);
-        intent.putExtra(Constants.EXTRA_URL, urlArray[position]);
+        intent.putExtra(Constants.EXTRA_URL, mUrlArray[position]);
         intent.putExtra(Constants.EXTRA_IS_RADIO, true);
         if (RecordPlayerService.isServiceRunning){
             Toast.makeText(getActivity(), R.string.close_current_player, Toast.LENGTH_SHORT).show();
         } else if (!isNetworkAvailable()){
             Toast.makeText(getActivity(), R.string.no_internet, Toast.LENGTH_SHORT).show();
         } else {
-            if (!isWifiConnected() && shouldShowDialog){
+            if (!isWifiConnected() && mShouldShowDialog){
                 showInternetUsageDialog(intent);
             } else {
                 startActivity(intent);
             }
         }
+    }
+
+
+    private boolean shouldOpenKznhRadio() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        return (dayOfWeek == Calendar.SUNDAY && hour >= 10);
     }
 
     public void setActionBarTitle (int titleRes) {
@@ -140,5 +165,13 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        if (position == 0){
+            tryToStartActivity(position);
+        }
+        return false;
     }
 }

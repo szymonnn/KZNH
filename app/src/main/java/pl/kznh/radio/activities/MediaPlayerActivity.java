@@ -91,13 +91,15 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
 
     private Button mChooseRadioButton;
 
+    private static MediaPlayerActivity mMediaPlayerActivity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_player);
         setActionBarTitle(R.string.title_activity_media_player);
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
+        mMediaPlayerActivity = this;
         settingRecordParameters();
 
         mErrorTextVew = (TextView) findViewById(R.id.errorTextView);
@@ -293,6 +295,35 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        settingRecordParameters();
+        mPlayPauseButton.setOnClickListener(this);
+
+        mSeekBar.setOnSeekBarChangeListener(this);
+
+        mChooseRadioButton.setOnClickListener(this);
+
+        mTitleView.setText(mTitle);
+        mSpeakerView.setText(mSpeaker);
+
+        mVolumeDownButton.setOnClickListener(this);
+        mVolumeUpButton.setOnClickListener(this);
+        mForwardButton.setOnClickListener(this);
+        mBackwardButton.setOnClickListener(this);
+
+        configureBroadcastReceiver();
+
+        if (RecordPlayerService.isServiceRunning){
+            //Log.i("MEDIA PLAYER SERVICE", "is running");
+            bindPlayerService();
+        } else {
+            //Log.i("MEDIA PLAYER SERVICE", "is not running");
+            createMediaPlayerService();
+        }
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         try {
@@ -300,11 +331,21 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         } catch (IllegalArgumentException e){
             e.printStackTrace();
         }
-        if (RecordPlayerService.isServiceRunning)
-        showNotification();
+        if (RecordPlayerService.isServiceRunning) {
+            showNotification();
+        }
     }
 
     private void showNotification() {
+        Intent stopServiceIntent = new Intent(this, RecordPlayerService.class);
+        stopServiceIntent.putExtra(Constants.EXTRA_ACTION_FROM_NOTIFICATION, Constants.ACTION_FROM_NOTIFICATION_STOP_SERVICE);
+
+        Intent pausePlayerIntent = new Intent(this, RecordPlayerService.class);
+        pausePlayerIntent.putExtra(Constants.EXTRA_ACTION_FROM_NOTIFICATION, Constants.ACTION_FROM_NOTIFICATION_PAUSE);
+
+        Intent playPlayerIntent = new Intent(this, RecordPlayerService.class);
+        playPlayerIntent.putExtra(Constants.EXTRA_ACTION_FROM_NOTIFICATION, Constants.ACTION_FROM_NOTIFICATION_PLAY);
+
         NotificationCompat.Builder mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.icon_white)
@@ -312,6 +353,9 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
                         .setContentTitle(mSpeaker)
                         .setColor(ContextCompat.getColor(this, R.color.primary))
                         .setContentText(mTitle)
+                        .addAction(R.drawable.icon_notification_play, "", PendingIntent.getService(this, 4000, playPlayerIntent, PendingIntent.FLAG_UPDATE_CURRENT))
+                        .addAction(R.drawable.icon_notification_pause, "", PendingIntent.getService(this, 3000, pausePlayerIntent, PendingIntent.FLAG_UPDATE_CURRENT))
+                        .addAction(R.drawable.icon_notification_exit, "", PendingIntent.getService(this, 5000, stopServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                         .setOngoing(true)
                         .setAutoCancel(true);
         Intent resultIntent = new Intent(this, MediaPlayerActivity.class);
@@ -322,11 +366,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(MediaPlayerActivity.class);
         stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 1000, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
         mNotificationManager.notify(Constants.NOTIFICATION_ID, mBuilder.build());
     }
@@ -509,5 +549,9 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         s.setSpan(new TypefaceSpan(this, Constants.FONT_NAME), 0, s.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         ((AppCompatActivity) this).getSupportActionBar().setTitle(s);
+    }
+
+    public static void staticFinish(){
+        mMediaPlayerActivity.finish();
     }
 }

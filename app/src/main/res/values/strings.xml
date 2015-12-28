@@ -29,6 +29,9 @@
     <string name="internet_usage_warning">Twój operator może naliczyć dodatkowe koszty za połączenie z internetem. Jeżeli to możliwe połącz się przez wifi.</string>
     <string name="dont_show">Nie pokazuj tego więcej</string>
     <string name="no_internet">Nie masz połączenia z internetem.</string>
+    <string name="press_back_again">Wciśnij wstecz jeszcze raz, aby wyjść z aplikacji.</string>
+    <string name="exit">Zakończ</string>
+    <string name="only_sunday">Ta stacja nadaje tylko w niedziele od 10:00.</string>
 
     <string name="title_section1">KZNH</string>
     <string name="title_section2">Kalendarz</string>

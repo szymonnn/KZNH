@@ -10,6 +10,7 @@ import android.os.IBinder;
 
 import java.io.IOException;
 
+import pl.kznh.radio.activities.MediaPlayerActivity;
 import pl.kznh.radio.utils.Constants;
 
 public class RecordPlayerService extends Service {
@@ -36,9 +37,29 @@ public class RecordPlayerService extends Service {
         //Log.i("SERVICE", "NOT RUNNING - INITIALIZING");
         if (intent != null) {
             Bundle extras = intent.getExtras();
-            mUrl = extras.getString(Constants.EXTRA_URL);
-            initializePlayer();
-            isServiceRunning = true;
+            if (extras.getInt(Constants.EXTRA_ACTION_FROM_NOTIFICATION) == Constants.NOT_ACTION){
+                mUrl = extras.getString(Constants.EXTRA_URL);
+                initializePlayer();
+                isServiceRunning = true;
+            } else {
+                switch(extras.getInt(Constants.EXTRA_ACTION_FROM_NOTIFICATION)){
+                    case Constants.ACTION_FROM_NOTIFICATION_STOP_SERVICE:
+                        releaseMediaPlayer();
+                        stopSelf();
+                        MediaPlayerActivity.staticFinish();
+                        break;
+                    case Constants.ACTION_FROM_NOTIFICATION_PLAY:
+                        if (!isMediaPlayerPlaying())
+                        startMediaPlayer();
+                        break;
+                    case Constants.ACTION_FROM_NOTIFICATION_PAUSE:
+                        if (isMediaPlayerPlaying())
+                        pauseMediaPlayer();
+                        break;
+                }
+            }
+
+
         } else {
             isServiceRunning = false;
         }
@@ -155,7 +176,13 @@ public class RecordPlayerService extends Service {
     }
 
     public int getCurrentPosition (){
-        return mMediaPlayer.getCurrentPosition();
+        int currentPosition = 0;
+        try{
+            currentPosition = mMediaPlayer.getCurrentPosition();
+        } catch(IllegalStateException e){
+            e.printStackTrace();
+        }
+        return currentPosition;
     }
 
     public void setUrl (String url){
