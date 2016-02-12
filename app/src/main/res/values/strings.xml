@@ -32,11 +32,18 @@
     <string name="press_back_again">Wciśnij wstecz jeszcze raz, aby wyjść z aplikacji.</string>
     <string name="exit">Zakończ</string>
     <string name="only_sunday">Ta stacja nadaje tylko w niedziele od 10:00.</string>
+    <string name="read">CZYTAJ</string>
+    <string name="fragments_for_today">Fragmenty na dziś</string>
+    <string name="install_mysword">Ta funkcja najlepiej działa z aplikacją MySword, czy chcesz ją zainstalować?</string>
+    <string name="progress">POSTĘP</string>
+    <string name="loading">Trwa ładowanie...</string>
+    <string name="error_code">Kod błędu:</string>
 
     <string name="title_section1">KZNH</string>
     <string name="title_section2">Kalendarz</string>
     <string name="title_section3">Radio</string>
     <string name="title_section4">Nagrania</string>
+    <string name="title_section5">Plan czytania Biblii</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -84,6 +91,9 @@
         <item>grudzień</item>
     </string-array>
     <string name="title_activity_media_player">Odtwarzacz</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

@@ -1,33 +1,23 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-<!--
-    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-        android:id="@+id/calendarView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        app:mcv_showOtherDates="all"
-        app:mcv_selectionColor="@color/primary"
-        app:mcv_arrowColor="@color/primary"
-        android:visibility="invisible"
-        />
--->
-    <ImageView
-        android:id="@+id/progressView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:src="@drawable/progress"/>
+    android:orientation="vertical"
+    android:id="@+id/rootLayout">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/errorTextView"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:textColor="?colorPrimary"
-        android:textSize="16sp" />
+    <include layout="@layout/view_progress" />
+
+    <include layout="@layout/view_error" />
+
+    <!--<com.prolificinteractive.materialcalendarview.MaterialCalendarView-->
+        <!--android:id="@+id/calendarView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+        <!--app:mcv_showOtherDates="all"-->
+        <!--app:mcv_selectionColor="@color/primary"-->
+        <!--app:mcv_arrowColor="@color/primary"-->
+        <!--app:mcv_monthLabels="@array/months_array"-->
+        <!--/>-->
 
 </RelativeLayout>

@@ -35,4 +35,11 @@
     <dimen name="home_fragment_buttons_margin">16dp</dimen>
     <dimen name="home_fragment_title_margin">16dp</dimen>
     <dimen name="home_fragment_logo_padding">32dp</dimen>
+    <dimen name="reading_plan_button_height">24dp</dimen>
+    <dimen name="reading_plan_button_width">70dp</dimen>
+    <dimen name="reading_plan_button_margin_top">16dp</dimen>
+    <dimen name="reading_plan_button_margin_left_right">4dp</dimen>
+    <dimen name="reading_plan_item_padding_top_bottom">16dp</dimen>
+    <dimen name="reading_plan_item_padding_left_right">8dp</dimen>
+    <dimen name="reading_plan_progressbar_pane_padding">16dp</dimen>
 </resources>

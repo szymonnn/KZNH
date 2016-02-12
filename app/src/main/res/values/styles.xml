@@ -21,4 +21,7 @@
         <item name="spinBars">true</item>
         <item name="color">@android:color/white</item>
     </style>
+
+    <style name="ReadingPlanProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+    </style>
 </resources>

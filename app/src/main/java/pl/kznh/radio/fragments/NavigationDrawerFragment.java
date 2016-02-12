@@ -103,13 +103,15 @@ public class NavigationDrawerFragment extends Fragment {
                         getString(R.string.title_section1),
                         getString(R.string.title_section2),
                         getString(R.string.title_section3),
-                        getString(R.string.title_section4)
+                        getString(R.string.title_section4),
+                        getString(R.string.title_section5)
                 },
                 new int []{
                         R.drawable.kznh,
                         R.drawable.calendar,
                         R.drawable.radio,
                         R.drawable.mp3,
+                        R.drawable.icon_bible
                 });
         mDrawerListView.setAdapter(adapter);
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);

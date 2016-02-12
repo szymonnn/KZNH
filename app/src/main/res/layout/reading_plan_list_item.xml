@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/reading_plan_item_padding_top_bottom"
+    android:paddingBottom="@dimen/reading_plan_item_padding_top_bottom"
+    android:paddingLeft="@dimen/reading_plan_item_padding_left_right"
+    android:paddingRight="@dimen/reading_plan_item_padding_left_right">
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/icon_bible"
+        android:id="@+id/imageView"
+        android:padding="@dimen/record_icon_padding"
+        android:background="@drawable/menu_item_icon_background"
+        android:layout_marginRight="@dimen/record_speaker_year_icon_padding"
+        android:layout_centerVertical="true"/>
+
+    <TextView
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/bookView"
+        android:textColor="?colorPrimary"
+        android:textSize="16sp"
+        android:layout_toLeftOf="@+id/readButton"
+        android:layout_toStartOf="@+id/readButton"
+        android:layout_centerVertical="true"/>
+
+
+    <Button
+        android:id="@+id/readButton"
+        android:layout_width="@dimen/reading_plan_button_width"
+        android:layout_height="@dimen/reading_plan_button_height"
+        android:background="@drawable/social_button"
+        android:text="@string/read"
+        android:textColor="@color/default_light"
+        android:layout_alignParentRight="true"
+        android:textSize="12sp"
+        android:layout_marginTop="@dimen/reading_plan_button_margin_top"
+        android:layout_marginLeft="@dimen/reading_plan_button_margin_left_right"
+        android:layout_centerVertical="true"/>
+</RelativeLayout>

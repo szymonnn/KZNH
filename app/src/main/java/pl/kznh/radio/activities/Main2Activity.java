@@ -13,19 +13,13 @@ import pl.kznh.radio.fragments.CalendarFragment;
 import pl.kznh.radio.fragments.HomeFragment;
 import pl.kznh.radio.fragments.NavigationDrawerFragment;
 import pl.kznh.radio.fragments.RadioFragment;
+import pl.kznh.radio.fragments.ReadingPlanFragment;
 import pl.kznh.radio.fragments.RecordsFragment;
 
 public class Main2Activity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
-
     private Fragment mCurrentFragment;
-
-    private FragmentManager mFragmentManager;
 
     private int mBackCounter = 0;
 
@@ -33,9 +27,10 @@ public class Main2Activity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
-
-
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
+        /*
+      Fragment managing the behaviors, interactions and presentation of the navigation drawer.
+     */
+        NavigationDrawerFragment mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
         // Set up the drawer.
@@ -47,7 +42,7 @@ public class Main2Activity extends AppCompatActivity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        mFragmentManager = getSupportFragmentManager();
+        FragmentManager mFragmentManager = getSupportFragmentManager();
         mFragmentManager.beginTransaction()
                 .replace(R.id.container, getFragment(position))
                 .commit();
@@ -70,6 +65,10 @@ public class Main2Activity extends AppCompatActivity
             case 3:
                 //records fragment
                 mCurrentFragment = new RecordsFragment();
+                break;
+            case 4:
+                //reading plan fragment
+                mCurrentFragment = new ReadingPlanFragment();
                 break;
         }
         return mCurrentFragment;

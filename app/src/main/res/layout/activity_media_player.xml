@@ -3,15 +3,16 @@
     android:layout_height="match_parent"
     tools:context="pl.kznh.radio.activities.MediaPlayerActivity">
 
-    <TextView
-        android:id="@+id/errorTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:textColor="?colorPrimary"
-        android:textSize="16sp" />
+    <include layout="@layout/view_progress" />
 
-    <Button
+    <include layout="@layout/view_error" />
+
+    <RelativeLayout
+        android:id="@+id/view_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
         android:textColor="#FFFFFF"
         android:text="@string/choose_radio_uppercase"
         android:id="@+id/changeRadioButton"
@@ -25,15 +26,7 @@
         android:visibility="invisible"
         android:layout_margin="@dimen/activity_horizontal_margin"/>
 
-    <ImageView
-        android:id="@+id/progressView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:src="@drawable/progress"
-        android:visibility="invisible"/>
-
-    <LinearLayout
+        <LinearLayout
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
@@ -184,6 +177,6 @@
         android:textColor="@color/primary"
         android:visibility="invisible"
         android:gravity="center"/>
-
+    </RelativeLayout>
 
 </RelativeLayout>

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="primary_light">#b8ffe7</color>
     <color name="primary">#00ad9d</color>
     <color name="primary_dark">#00998a</color>
     <color name="default_light">#fafafa</color>
+    <color name="inactive">#adadad</color>
+    <color name="inactive_dark">#8d8d8d</color>
 </resources>

@@ -12,13 +12,9 @@ import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -38,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import pl.aprilapps.switcher.Switcher;
 import pl.kznh.radio.R;
 import pl.kznh.radio.gson.calendar.Event;
 import pl.kznh.radio.gson.calendar.EventsContainer;
@@ -55,27 +52,32 @@ public class CalendarFragment extends Fragment {
 
     private ArrayList<Event> mEvents;
 
-    private ImageView mProgressView;
-
-    private TextView mErrorTextView;
-
     private RelativeLayout mRootLayout;
 
     private AlertDialog mDialog;
 
+    private Switcher mSwitcher;
+
+    private MaterialCalendarView mCalendar;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        RelativeLayout view = (RelativeLayout) inflater.inflate(R.layout.fragment_calendar, container, false);
-        mRootLayout = view;
-        mProgressView = (ImageView) view.findViewById(R.id.progressView);
-        mErrorTextView = (TextView) view.findViewById(R.id.errorTextView);
+        View view = inflater.inflate(R.layout.fragment_calendar, container, false);
+        mRootLayout = (RelativeLayout) view.findViewById(R.id.rootLayout);
+        ((TextView)view.findViewById(R.id.progressTextView)).setTypeface(Constants.robotoCondensed);
+        ((TextView)view.findViewById(R.id.errorTextView)).setTypeface(Constants.robotoCondensed);
+        mCalendar = new MaterialCalendarView(getActivity());
+        mSwitcher = new Switcher.Builder(getActivity())
+                .addContentView(mCalendar)
+                .addProgressView(view.findViewById(R.id.progress_view)) //progress view member
+                .addErrorView(view.findViewById(R.id.error_view))
+                .setErrorLabel((TextView) view.findViewById(R.id.errorTextView))
+                .build();
+        mSwitcher.showProgressViewImmediately();
 
-        mErrorTextView.setTypeface(Constants.robotoCondensed);
         setActionBarTitle(R.string.title_section2);
 
-        Animation rotateAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_animation);
-        mProgressView.startAnimation(rotateAnimation);
         getData();
         //Log.i("dfghjhfd", getMinTime() + " " + getMaxTime());
         //new ApiSimulator().executeOnExecutor(Executors.newSingleThreadExecutor());
@@ -92,24 +94,13 @@ public class CalendarFragment extends Fragment {
                         Gson gson = new Gson();
                         EventsContainer eventsContainer = gson.fromJson(response.toString(), EventsContainer.class);
                         mEvents = eventsContainer.getItems();
-                        mProgressView.clearAnimation();
-                        mProgressView.setVisibility(View.INVISIBLE);
                         createCalendar();
                     }
                 }, new Response.ErrorListener() {
 
                     @Override
                     public void onErrorResponse(final VolleyError error) {
-                        mProgressView.clearAnimation();
-                        mProgressView.setVisibility(View.INVISIBLE);
-                        mErrorTextView.setText(R.string.error_unknown);
-                        mErrorTextView.setOnLongClickListener(new View.OnLongClickListener() {
-                            @Override
-                            public boolean onLongClick(View v) {
-                                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                                return false;
-                            }
-                        });
+                        mSwitcher.showErrorView(String.format("%s", getString(R.string.error_unknown)));
                     }
                 });
 
@@ -135,26 +126,30 @@ public class CalendarFragment extends Fragment {
 
     private void createCalendar() {
         try {
-            MaterialCalendarView calendar = new MaterialCalendarView(getContext());
-            calendar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            calendar.setShowOtherDates(MaterialCalendarView.SHOW_ALL);
-            calendar.setSelectionColor(ContextCompat.getColor(getContext(), R.color.primary));
-            calendar.setArrowColor(ContextCompat.getColor(getContext(), R.color.primary));
-            calendar.addDecorator(new CurrentDayDecorator(CalendarDay.from(new Date()), getActivity()));
-            calendar.setVisibility(View.VISIBLE);
-            calendar.setTitleMonths(R.array.months_array);
-            calendar.setShowOtherDates(MaterialCalendarView.SHOW_NONE);
-            calendar.addDecorator(new EventDecorator(ContextCompat.getColor(getContext(), R.color.primary_dark), getDaysToDecorate()));
-            calendar.setOnDateChangedListener(new OnDateSelectedListener() {
-                @Override
-                public void onDateSelected(@NonNull MaterialCalendarView materialCalendarView, final CalendarDay calendarDay, boolean b) {
-                    if (getDaysToDecorate().contains(calendarDay)) {
-                        createDialog(calendarDay);
-                    }
-                }
-            });
+            new Thread(){
+                public void run() {
+                    mCalendar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    mCalendar.setSelectionColor(ContextCompat.getColor(getContext(), R.color.primary));
+                    mCalendar.setShowOtherDates(MaterialCalendarView.SHOW_ALL);
+                    mCalendar.setArrowColor(ContextCompat.getColor(getContext(), R.color.primary));
+                    mCalendar.addDecorator(new CurrentDayDecorator(CalendarDay.from(new Date()), getActivity()));
+                    mCalendar.setTitleMonths(R.array.months_array);
+                    mCalendar.setVisibility(View.VISIBLE);
+                    mCalendar.setShowOtherDates(MaterialCalendarView.SHOW_NONE);
+                    mCalendar.addDecorator(new EventDecorator(ContextCompat.getColor(getContext(), R.color.primary_dark), getDaysToDecorate()));
+                    mCalendar.setOnDateChangedListener(new OnDateSelectedListener() {
+                        @Override
+                        public void onDateSelected(@NonNull MaterialCalendarView materialCalendarView, final CalendarDay calendarDay, boolean b) {
+                            if (getDaysToDecorate().contains(calendarDay)) {
+                                createDialog(calendarDay);
+                            }
+                        }
+                    });
+                            mRootLayout.addView(mCalendar);
+                            mSwitcher.showContentView();
 
-            mRootLayout.addView(calendar);
+                }
+            }.run();
         } catch (NullPointerException e){
             e.printStackTrace();
         }

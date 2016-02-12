@@ -57,7 +57,7 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
         setActionBarTitle(R.string.choose_radio);
         mUrlArray = getResources().getStringArray(R.array.radio_url_array);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mShouldShowDialog = mSharedPreferences.getBoolean(Constants.PREF_SHOW_DIALOG, true);
+        mShouldShowDialog = mSharedPreferences.getBoolean(Constants.PREF_SHOW_INTERNET_USAGE_DIALOG, true);
         ListView radiosList = (ListView) view.findViewById(R.id.radiosList);
         mRadioNames = getResources().getStringArray(R.array.radio_names_array);
         mRadioOwners = getResources().getStringArray(R.array.radio_owners_array);
@@ -83,20 +83,23 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
     }
 
     private void tryToStartActivity(int position) {
+        boolean shouldShowDialog = mSharedPreferences.getBoolean(Constants.PREF_SHOW_INTERNET_USAGE_DIALOG, true);
         Intent intent = new Intent(getActivity(), MediaPlayerActivity.class);
         intent.putExtra(Constants.EXTRA_TITLE, mRadioNames[position]);
         intent.putExtra(Constants.EXTRA_SPEAKER, mRadioOwners[position]);
         intent.putExtra(Constants.EXTRA_LENGTH, 0);
         intent.putExtra(Constants.EXTRA_URL, mUrlArray[position]);
         intent.putExtra(Constants.EXTRA_IS_RADIO, true);
-        if (RecordPlayerService.isServiceRunning){
-            Toast.makeText(getActivity(), R.string.close_current_player, Toast.LENGTH_SHORT).show();
-        } else if (!isNetworkAvailable()){
+        if (RecordPlayerService.isServiceRunning) {
+            intent.putExtra(Constants.EXTRA_IS_NEW_INTENT, true);
+        }
+        if (!isNetworkAvailable()) {
             Toast.makeText(getActivity(), R.string.no_internet, Toast.LENGTH_SHORT).show();
         } else {
-            if (!isWifiConnected() && mShouldShowDialog){
+            if (!isWifiConnected() && shouldShowDialog) {
                 showInternetUsageDialog(intent);
             } else {
+                MediaPlayerActivity.staticFinish();
                 startActivity(intent);
             }
         }
@@ -143,7 +146,7 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (checkBox.isChecked()) {
-                    mSharedPreferences.edit().putBoolean(Constants.PREF_SHOW_DIALOG, false).apply();
+                    mSharedPreferences.edit().putBoolean(Constants.PREF_SHOW_INTERNET_USAGE_DIALOG, false).apply();
                     dialog.dismiss();
                 }
                 startActivity(intent);
@@ -158,7 +161,7 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (checkBox.isChecked()) {
-                    mSharedPreferences.edit().putBoolean(Constants.PREF_SHOW_DIALOG, false).apply();
+                    mSharedPreferences.edit().putBoolean(Constants.PREF_SHOW_INTERNET_USAGE_DIALOG, false).apply();
                 }
                 startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 0);
             }

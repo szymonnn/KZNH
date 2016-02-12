@@ -20,14 +20,11 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -49,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
 
+import pl.aprilapps.switcher.Switcher;
 import pl.kznh.radio.R;
 import pl.kznh.radio.activities.MediaPlayerActivity;
 import pl.kznh.radio.gson.record.RecordContainer;
@@ -70,10 +68,6 @@ public class RecordsFragment extends Fragment {
 
     EditText mSearchField;
 
-    private ImageView mProgressView;
-
-    private TextView mErrorTextView;
-
     private LinearLayout mFormLayout;
 
     private RecordContainer mRecordContainer;
@@ -86,15 +80,27 @@ public class RecordsFragment extends Fragment {
 
     private SharedPreferences mSharedPreferences;
 
+    private Context mContext;
+
+    private Switcher mSwitcher;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_records, container, false);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         setActionBarTitle(R.string.title_section4);
 
-        bindViews(view);
+        ((TextView) view.findViewById(R.id.progressTextView)).setTypeface(Constants.robotoCondensed);
+        ((TextView) view.findViewById(R.id.errorTextView)).setTypeface(Constants.robotoCondensed);
+        mSwitcher = new Switcher.Builder(getActivity())
+                .addContentView(view.findViewById(R.id.rootView))
+                .addProgressView(view.findViewById(R.id.progress_view)) //progress view member
+                .addErrorView(view.findViewById(R.id.error_view))
+                .setErrorLabel((TextView) view.findViewById(R.id.errorTextView))
+                .build();
+        mSwitcher.showProgressViewImmediately();
 
-        setProgressBarVisible(true);
+        bindViews(view);
 
         getData();
         return view;
@@ -104,27 +110,15 @@ public class RecordsFragment extends Fragment {
         mRecordsList = (ListView) view.findViewById(R.id.recordsList);
         mSpeakerButton = (ImageButton) view.findViewById(R.id.speakerButton);
         mYearButton = (ImageButton) view.findViewById(R.id.yearButton);
-        mProgressView = (ImageView) view.findViewById(R.id.progressView);
-        mErrorTextView = (TextView) view.findViewById(R.id.errorTextView);
         mSearchField = (EditText) view.findViewById(R.id.searchField);
         mFormLayout = (LinearLayout) view.findViewById(R.id.formLayout);
 
-        mErrorTextView.setTypeface(Constants.robotoCondensed);
         mSearchField.setTypeface(Constants.robotoCondensed);
-    }
-
-    private void setProgressBarVisible(boolean b) {
-        if (b) {
-            Animation rotateAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_animation);
-            mProgressView.startAnimation(rotateAnimation);
-        } else {
-            mProgressView.setVisibility(View.INVISIBLE);
-        }
     }
 
     // method responsible for getting data from API, after all showView() is called
     private void getData() {
-        AsyncTask task = new AsyncTask(){
+        AsyncTask task = new AsyncTask() {
             @Override
             protected String doInBackground(Object[] params) {
                 try {
@@ -156,19 +150,14 @@ public class RecordsFragment extends Fragment {
             }
 
             @Override
-            protected void onPostExecute(Object json) {
-                super.onPostExecute(json);
-                if (json.equals("")){
-                    mProgressView.clearAnimation();
-                    mProgressView.setVisibility(View.INVISIBLE);
-                    mErrorTextView.setText(R.string.error_unknown);
-                } else {
+            protected void onPostExecute(final Object json) {
+                Exception exception = null;
                     try {
-                        JSONObject responseJsonObject = new JSONObject((String)json);
+                        JSONObject responseJsonObject = new JSONObject((String) json);
                         Iterator iterator = responseJsonObject.keys();
                         JSONArray jsonArray = new JSONArray();
 
-                        while (iterator.hasNext()){
+                        while (iterator.hasNext()) {
                             String key = (String) iterator.next();
                             jsonArray.put(responseJsonObject.get(key));
                         }
@@ -183,14 +172,16 @@ public class RecordsFragment extends Fragment {
 //                                + mRecords.get(0).getTitle() + " "
 //                                + mRecords.get(0).getYear() + " ");
 
-                    } catch (JSONException e) {
+                    } catch (NullPointerException | JSONException e) {
+                        exception = e;
                         e.printStackTrace();
+                        mSwitcher.showErrorView(String.format("%s", getString(R.string.error_unknown)));
+                    } finally {
+                        if (exception == null){
+                            showView();
+                        }
                     }
-
-                    showView();
-
                 }
-            }
         };
         task.execute();
     }
@@ -198,8 +189,7 @@ public class RecordsFragment extends Fragment {
 
     // method resposible for configuring actions
     private void showView() {
-        mProgressView.clearAnimation();
-        setProgressBarVisible(false);
+        mSwitcher.showContentView();
         mRecordsList.setVisibility(View.VISIBLE);
         mYearButton.setVisibility(View.VISIBLE);
         mYearButton.setVisibility(View.VISIBLE);
@@ -213,20 +203,22 @@ public class RecordsFragment extends Fragment {
         mRecordsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                boolean shouldShowDialog = mSharedPreferences.getBoolean(Constants.PREF_SHOW_DIALOG, true);
+                boolean shouldShowDialog = mSharedPreferences.getBoolean(Constants.PREF_SHOW_INTERNET_USAGE_DIALOG, true);
                 Intent intent = new Intent(getActivity(), MediaPlayerActivity.class);
                 intent.putExtra(Constants.EXTRA_TITLE, mRecordContainer.getRecordTitles(mIndexesOfFilteredRecords).get(position));
                 intent.putExtra(Constants.EXTRA_SPEAKER, mRecordContainer.getRecordArtists(mIndexesOfFilteredRecords).get(position));
                 intent.putExtra(Constants.EXTRA_LENGTH, mRecordContainer.getRecordLengths(mIndexesOfFilteredRecords).get(position));
                 intent.putExtra(Constants.EXTRA_URL, Constants.BASE_URL + mRecordContainer.getRecordWebDirectories(mIndexesOfFilteredRecords).get(position));
                 if (RecordPlayerService.isServiceRunning) {
-                    Toast.makeText(getActivity(), R.string.close_current_player, Toast.LENGTH_SHORT).show();
-                } else if (!isNetworkAvailable()) {
+                    intent.putExtra(Constants.EXTRA_IS_NEW_INTENT, true);
+                }
+                if (!isNetworkAvailable()) {
                     Toast.makeText(getActivity(), R.string.no_internet, Toast.LENGTH_SHORT).show();
                 } else {
                     if (!isWifiConnected() && shouldShowDialog) {
                         showInternetUsageDialog(intent);
                     } else {
+                        MediaPlayerActivity.staticFinish();
                         startActivity(intent);
                     }
                 }
@@ -264,10 +256,10 @@ public class RecordsFragment extends Fragment {
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String [] items = null;
+                String[] items = null;
                 int title = 0;
                 final int id = v.getId();
-                switch (id){
+                switch (id) {
                     case R.id.yearButton:
                         ArrayList<String> yearArray = mRecordContainer.getSortedYearsArray();
                         yearArray.add(0, getString(R.string.all_years));
@@ -288,7 +280,7 @@ public class RecordsFragment extends Fragment {
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (id){
+                        switch (id) {
                             case R.id.yearButton:
                                 if (which != 0) {
                                     mChoosenYear = finalItems[which];
@@ -327,7 +319,7 @@ public class RecordsFragment extends Fragment {
         String text = (mSearchField.getText().toString() + " " + mChoosenSpeaker + " " + mChoosenYear).toLowerCase(Locale.getDefault());
         mIndexesOfFilteredRecords = mRecordContainer.getIndexesOfMatchingRecords(text);
 
-        RecordsAdapter recordsAdapter = new RecordsAdapter(getActivity(), android.R.layout.simple_list_item_1,
+        RecordsAdapter recordsAdapter = new RecordsAdapter(mContext, android.R.layout.simple_list_item_1,
                 mRecordContainer.getRecordStrings(mIndexesOfFilteredRecords),
                 mRecordContainer.getRecordTitles(mIndexesOfFilteredRecords),
                 mRecordContainer.getRecordLengths(mIndexesOfFilteredRecords),
@@ -335,20 +327,20 @@ public class RecordsFragment extends Fragment {
         mRecordsList.setAdapter(recordsAdapter);
     }
 
-    public void setActionBarTitle (int titleRes) {
+    public void setActionBarTitle(int titleRes) {
         SpannableString s = new SpannableString(getString(titleRes));
         s.setSpan(new TypefaceSpan(getActivity(), Constants.FONT_NAME), 0, s.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(s);
     }
 
-    private boolean isWifiConnected () {
+    private boolean isWifiConnected() {
         ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
         return activeNetwork != null && (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI);
     }
 
-    private boolean isNetworkAvailable (){
+    private boolean isNetworkAvailable() {
         ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
         return activeNetwork != null;
@@ -358,8 +350,8 @@ public class RecordsFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.internet_usage_dialog, null);
-        final CheckBox checkBox = (CheckBox)view.findViewById(R.id.checkBox);
-        TextView warningTextView = (TextView)view.findViewById(R.id.textView2);
+        final CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBox);
+        TextView warningTextView = (TextView) view.findViewById(R.id.textView2);
         checkBox.setTypeface(Constants.robotoCondensed);
         warningTextView.setTypeface(Constants.robotoCondensed);
         builder.setView(view);
@@ -367,7 +359,7 @@ public class RecordsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (checkBox.isChecked()) {
-                    mSharedPreferences.edit().putBoolean(Constants.PREF_SHOW_DIALOG, false).apply();
+                    mSharedPreferences.edit().putBoolean(Constants.PREF_SHOW_INTERNET_USAGE_DIALOG, false).apply();
                     dialog.dismiss();
                 }
                 startActivity(intent);
@@ -382,7 +374,7 @@ public class RecordsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (checkBox.isChecked()) {
-                    mSharedPreferences.edit().putBoolean(Constants.PREF_SHOW_DIALOG, false).apply();
+                    mSharedPreferences.edit().putBoolean(Constants.PREF_SHOW_INTERNET_USAGE_DIALOG, false).apply();
                 }
                 startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 0);
             }
@@ -391,10 +383,16 @@ public class RecordsFragment extends Fragment {
         dialog.show();
     }
 
-    public void setEmptySearchParameters(){
-            mSearchField.setText("");
-            mChoosenSpeaker = "";
-            mChoosenYear = "";
-            refreshAdapter();
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
+
+    public void setEmptySearchParameters() {
+        mSearchField.setText("");
+        mChoosenSpeaker = "";
+        mChoosenYear = "";
+        refreshAdapter();
     }
 }

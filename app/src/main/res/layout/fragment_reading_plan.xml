@@ -1,0 +1,60 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="pl.kznh.radio.fragments.ReadingPlanFragment">
+
+    <include layout="@layout/view_progress" />
+
+    <include layout="@layout/view_error" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/rootView">
+
+        <ListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/progressLayout"/>
+
+        <LinearLayout
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentBottom="true"
+            android:padding="@dimen/reading_plan_progressbar_pane_padding">
+            <TextView
+                android:id="@+id/progressTView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/progress"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/primary" />
+
+
+            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                android:id="@+id/readMaterialProgressBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:mpb_progressStyle="horizontal"
+                style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal" />
+
+            <TextView
+                android:id="@+id/percentageTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/primary" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</FrameLayout>

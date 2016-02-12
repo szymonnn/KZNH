@@ -1,5 +1,6 @@
 package pl.kznh.radio.activities;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -27,17 +28,15 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
+import pl.aprilapps.switcher.Switcher;
 import pl.kznh.radio.R;
 import pl.kznh.radio.services.RecordPlayerService;
 import pl.kznh.radio.utils.Constants;
@@ -52,10 +51,6 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
     private String mUrl;
 
     private int mLength;
-
-    private TextView mErrorTextVew;
-
-    private ImageView mProgressView;
 
     private RecordPlayerService mService;
 
@@ -93,17 +88,28 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
 
     private static MediaPlayerActivity mMediaPlayerActivity;
 
+    private boolean mIsNewIntent;
+
+    private Switcher mSwitcher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_player);
         setActionBarTitle(R.string.title_activity_media_player);
+        ((TextView)findViewById(R.id.errorTextView)).setTypeface(Constants.robotoCondensed);
+        ((TextView)findViewById(R.id.progressTextView)).setTypeface(Constants.robotoCondensed);
+        mSwitcher = new Switcher.Builder(this)
+                .addContentView(findViewById(R.id.view_content))
+                .addProgressView(findViewById(R.id.progress_view)) //progress view member
+                .addErrorView(findViewById(R.id.error_view))
+                .setErrorLabel((TextView) findViewById(R.id.errorTextView))
+                .build();
+        mSwitcher.showProgressViewImmediately();
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mMediaPlayerActivity = this;
         settingRecordParameters();
 
-        mErrorTextVew = (TextView) findViewById(R.id.errorTextView);
-        mProgressView = (ImageView) findViewById(R.id.progressView);
         mTitleView = (TextView) findViewById(R.id.titleView);
         mSpeakerView = (TextView) findViewById(R.id.speakerView);
         mProgressTimeView = (TextView) findViewById(R.id.progressTime);
@@ -116,7 +122,6 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         mSeekBar = (SeekBar) findViewById(R.id.seekBar);
         mChooseRadioButton = (Button) findViewById(R.id.changeRadioButton);
 
-        mErrorTextVew.setTypeface(Constants.robotoCondensed);
         mTitleView.setTypeface(Constants.robotoCondensed);
         mSpeakerView.setTypeface(Constants.robotoCondensed);
         mProgressTimeView.setTypeface(Constants.robotoCondensed);
@@ -124,8 +129,6 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         mChooseRadioButton.setTypeface(Constants.robotoCondensed);
 
 
-
-        setProgressBarVisible(true);
         mPlayPauseButton.setOnClickListener(this);
 
         mSeekBar.setOnSeekBarChangeListener(this);
@@ -142,13 +145,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
 
         configureBroadcastReceiver();
 
-        if (RecordPlayerService.isServiceRunning){
-            //Log.i("MEDIA PLAYER SERVICE", "is running");
-            bindPlayerService();
-        } else {
-            //Log.i("MEDIA PLAYER SERVICE", "is not running");
-            createMediaPlayerService();
-        }
+        bindPlayerService();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -181,10 +178,9 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         if (what == 0 && extra == 0) {
             // everything is ok
             mLength = mService.getLength();
-            setProgressBarVisible(false);
+            mSwitcher.showContentView();
             setViewsVisible(true);
             mSeekBar.setSecondaryProgress(0);
-            mErrorTextVew.setVisibility(View.INVISIBLE);
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
@@ -198,18 +194,9 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
             }
         } else {
             // there was an error
-            mErrorTextVew.setVisibility(View.VISIBLE);
-            setProgressBarVisible(false);
+            mSwitcher.showErrorView(String.format("%s\n%s [%s,%s]", getString(R.string.error_unknown), getString(R.string.error_code), what, extra));
             mTitleView.setVisibility(View.INVISIBLE);
             mSpeakerView.setVisibility(View.INVISIBLE);
-            mErrorTextVew.setText(getString(R.string.error_unknown));
-            mErrorTextVew.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    Toast.makeText(MediaPlayerActivity.this, "Kod błędu: " + "(" + what + ", " + extra + ")", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-            });
         }
     }
 
@@ -314,13 +301,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
 
         configureBroadcastReceiver();
 
-        if (RecordPlayerService.isServiceRunning){
-            //Log.i("MEDIA PLAYER SERVICE", "is running");
-            bindPlayerService();
-        } else {
-            //Log.i("MEDIA PLAYER SERVICE", "is not running");
-            createMediaPlayerService();
-        }
+        bindPlayerService();
     }
 
     @Override
@@ -353,6 +334,9 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
                         .setContentTitle(mSpeaker)
                         .setColor(ContextCompat.getColor(this, R.color.primary))
                         .setContentText(mTitle)
+                        .setPriority(Notification.PRIORITY_MAX)
+                        .setShowWhen(false)
+                        .setWhen(0)
                         .addAction(R.drawable.icon_notification_play, "", PendingIntent.getService(this, 4000, playPlayerIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                         .addAction(R.drawable.icon_notification_pause, "", PendingIntent.getService(this, 3000, pausePlayerIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                         .addAction(R.drawable.icon_notification_exit, "", PendingIntent.getService(this, 5000, stopServiceIntent, PendingIntent.FLAG_UPDATE_CURRENT))
@@ -379,24 +363,6 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private void createMediaPlayerService() {
-        Intent intent = new Intent(this, RecordPlayerService.class);
-        intent.putExtra(Constants.EXTRA_URL, mUrl);
-        mServiceConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                mService = ((RecordPlayerService.MyBinder) service).getService();
-                //Log.i("SERVICE", "CONNECTED" + mService.toString());
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-            }
-        };
-        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        startService(intent);
-    }
 
     private void bindPlayerService() {
         Intent intent = new Intent(this, RecordPlayerService.class);
@@ -406,6 +372,16 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
             public void onServiceConnected(ComponentName name, IBinder service) {
                 mService = ((RecordPlayerService.MyBinder) service).getService();
                 //Log.i("SERVICE", "RECONNECTED" + mService.toString());
+                if (mIsNewIntent){
+                    setViewsVisible(false);
+                    mSwitcher.showProgressView();
+                    mPlayPauseButton.setImageResource(R.drawable.icon_play);
+                    mTitleView.setText(mTitle);
+                    mSpeakerView.setText(mSpeaker);
+                    mService.releaseMediaPlayer();
+                    mService.setUrl(mUrl);
+                    mService.initializePlayer();
+                }
             }
 
             @Override
@@ -414,6 +390,9 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
             }
         };
         bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        if (!RecordPlayerService.isServiceRunning){
+            startService(intent);
+        }
     }
 
     private void settingRecordParameters() {
@@ -423,16 +402,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         //mLength = extras.getString(RecordsFragment.EXTRA_LENGTH);
         mUrl = extras.getString(Constants.EXTRA_URL);
         mIsRadio = extras.getBoolean(Constants.EXTRA_IS_RADIO);
-    }
-
-    private void setProgressBarVisible(boolean b) {
-        if (b) {
-            Animation rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_animation);
-            mProgressView.startAnimation(rotateAnimation);
-        } else {
-            mProgressView.clearAnimation();
-            mProgressView.setVisibility(View.GONE);
-        }
+        mIsNewIntent = extras.getBoolean(Constants.EXTRA_IS_NEW_INTENT);
     }
 
     @Override
@@ -447,15 +417,13 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         switch(v.getId()){
             case R.id.volumeDownButton:
                 if (currentVolume > 0){
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, --currentVolume, 0);
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, --currentVolume, AudioManager.FLAG_SHOW_UI);
                 }
-                showToast(currentVolume, maxVolume);
                 break;
             case R.id.volumeUPButton:
                 if (currentVolume < maxVolume){
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ++currentVolume, 0);
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ++currentVolume, AudioManager.FLAG_SHOW_UI);
                 }
-                showToast(currentVolume, maxVolume);
                 break;
             case R.id.playButton:
                 if (mService.isMediaPlayerPlaying()) {
@@ -484,12 +452,6 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private void showToast(int currentVolume, int maxVolume) {
-        mVolumeToast = Toast.makeText(MediaPlayerActivity.this, getString(R.string.volume) + " " + currentVolume + "/" + maxVolume, Toast.LENGTH_SHORT);
-        mVolumeToast.setGravity(Gravity.TOP, 0, 0);
-        mVolumeToast.setMargin(0, 0.15f);
-        mVolumeToast.show();
-    }
 
     private void showToast(String sign) {
         mVolumeToast = Toast.makeText(MediaPlayerActivity.this, sign + "10 sekund", Toast.LENGTH_SHORT);
@@ -528,7 +490,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
             public void onClick(DialogInterface dialog, int which) {
                 String [] urlArray = getResources().getStringArray(R.array.radio_url_array);
                 setViewsVisible(false);
-                setProgressBarVisible(true);
+                mSwitcher.showProgressView();
                 mPlayPauseButton.setImageResource(R.drawable.icon_play);
                 mSpeaker = radioOwners[which];
                 mTitle = radioNames[which];
@@ -552,6 +514,6 @@ public class MediaPlayerActivity extends AppCompatActivity implements View.OnCli
     }
 
     public static void staticFinish(){
-        mMediaPlayerActivity.finish();
+        if (mMediaPlayerActivity != null)mMediaPlayerActivity.finish();
     }
 }

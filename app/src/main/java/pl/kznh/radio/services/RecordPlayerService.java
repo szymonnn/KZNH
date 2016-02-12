@@ -94,6 +94,10 @@ public class RecordPlayerService extends Service {
 
     private void reInitializePlayer() {
         //Log.i("SERVICE", "reInitializePlayer()");
+        if (!mMediaPlayer.isPlaying()){
+            initializePlayer();
+            return;
+        }
         handleMediaPlayerErrorListener(Constants.ACTION_ON_ERROR, 0, 0);
         mMediaPlayer.setOnPreparedListener(new android.media.MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer mediaplayer) {
