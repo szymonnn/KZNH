@@ -31,7 +31,7 @@
     <string name="no_internet">Nie masz połączenia z internetem.</string>
     <string name="press_back_again">Wciśnij wstecz jeszcze raz, aby wyjść z aplikacji.</string>
     <string name="exit">Zakończ</string>
-    <string name="only_sunday">Ta stacja nadaje tylko w niedziele od 10:00.</string>
+    <string name="only_sunday">Ta stacja nadaje zazwyczaj w niedziele od 10:00.</string>
     <string name="read">CZYTAJ</string>
     <string name="fragments_for_today">Fragmenty na dziś</string>
     <string name="install_mysword">Ta funkcja najlepiej działa z aplikacją MySword, czy chcesz ją zainstalować?</string>

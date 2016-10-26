@@ -27,32 +27,6 @@
             android:orientation="vertical"
             android:layout_alignParentBottom="true"
             android:padding="@dimen/reading_plan_progressbar_pane_padding">
-            <TextView
-                android:id="@+id/progressTView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/progress"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/primary" />
-
-
-            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-                android:id="@+id/readMaterialProgressBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:mpb_progressStyle="horizontal"
-                style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal" />
-
-            <TextView
-                android:id="@+id/percentageTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/primary" />
-
         </LinearLayout>
 
 

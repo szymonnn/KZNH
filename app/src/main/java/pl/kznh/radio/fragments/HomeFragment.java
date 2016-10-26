@@ -57,12 +57,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private Intent getFacebookIntent() {
-        try {
-            getActivity().getPackageManager().getPackageInfo("com.facebook.katana", 0);
-            return new Intent(Intent.ACTION_VIEW, Uri.parse("fb://page/741235032647919"));
-        } catch (Exception e) {
-            return new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/KZNowaHuta"));
-        }
+        return new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/KZNowaHuta"));
     }
 
     public void setActionBarTitle (int titleRes) {

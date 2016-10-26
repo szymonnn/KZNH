@@ -44,10 +44,6 @@ public class ReadingPlanFragment extends Fragment{
 
     private ListView mListView;
 
-    private TextView mPercentageTextView;
-
-    private MaterialProgressBar mReadProgressBar;
-
     private List<String> mDates = new ArrayList<>();
 
     private List<String> mBookNames = new ArrayList<>();
@@ -76,7 +72,6 @@ public class ReadingPlanFragment extends Fragment{
         setActionBarTitle(R.string.fragments_for_today);
         ((TextView)view.findViewById(R.id.progressTextView)).setTypeface(Constants.robotoCondensed);
         ((TextView)view.findViewById(R.id.errorTextView)).setTypeface(Constants.robotoCondensed);
-        ((TextView)view.findViewById(R.id.progressTView)).setTypeface(Constants.robotoCondensed);
         mSwitcher = new Switcher.Builder(getActivity())
                 .addContentView(view.findViewById(R.id.rootView))
                 .addProgressView(view.findViewById(R.id.progress_view)) //progress view member
@@ -87,10 +82,6 @@ public class ReadingPlanFragment extends Fragment{
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mListView = (ListView) view.findViewById(R.id.listView);
-        mReadProgressBar = (MaterialProgressBar)view.findViewById(R.id.readMaterialProgressBar);
-        mPercentageTextView = (TextView) view.findViewById(R.id.percentageTextView);
-
-        mPercentageTextView.setTypeface(Constants.robotoCondensed);
 
         SimpleDateFormat queryDateFormat = new SimpleDateFormat("dd-MM");
         Firebase ref = new Firebase("https://resplendent-torch-429.firebaseio.com/" + Constants.CLASS_READING_PLAN);
@@ -106,7 +97,6 @@ public class ReadingPlanFragment extends Fragment{
 
                     System.out.println(snapshot.getValue());
                     mSwitcher.showContentView();
-                    setProgress();
                     for (DataSnapshot toReadSnapshot : snapshot.getChildren()) {
                         ToRead toRead = toReadSnapshot.getValue(ToRead.class);
                         mBookNames.add(toRead.getBookName());
@@ -166,15 +156,6 @@ public class ReadingPlanFragment extends Fragment{
     @Override
     public void onPause() {
         super.onPause();
-        setProgress();
-    }
-
-    private void setProgress() {
-        mReadProgress = mSharedPreferences.getStringSet(Constants.PREF_READ_FRAGMENTS, new HashSet<String>()).size();
-        mReadProgressBar.setMax(Constants.AMOUNT_OF_FRAGMENTS_TO_READ);
-        mReadProgressBar.setProgress(mReadProgress);
-        double progressPercent = (double)mReadProgress*100 / Constants.AMOUNT_OF_FRAGMENTS_TO_READ;
-        mPercentageTextView.setText(String.format("%.1f %s", progressPercent, "%"));
     }
 
     public void setActionBarTitle (int titleRes) {
