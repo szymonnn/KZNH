@@ -2,18 +2,21 @@ package pl.kznh.radio.services;
 
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 import java.io.IOException;
 
 import pl.kznh.radio.activities.MediaPlayerActivity;
 import pl.kznh.radio.utils.Constants;
 
-public class RecordPlayerService extends Service {
+public class RecordPlayerService extends Service implements AudioManager.OnAudioFocusChangeListener{
 
     private MediaPlayer mMediaPlayer;
 
@@ -28,6 +31,9 @@ public class RecordPlayerService extends Service {
     private IBinder mBinder = new MyBinder();
 
     public static boolean isServiceRunning;
+
+    private AudioManager mAudioManager;
+
 
     public RecordPlayerService() {
     }
@@ -85,6 +91,7 @@ public class RecordPlayerService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mAudioManager != null )mAudioManager.abandonAudioFocus(this);
         stopSelf();
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(Constants.NOTIFICATION_ID);
@@ -94,6 +101,8 @@ public class RecordPlayerService extends Service {
 
     private void reInitializePlayer() {
         //Log.i("SERVICE", "reInitializePlayer()");
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
         if (!mMediaPlayer.isPlaying()){
             initializePlayer();
             return;
@@ -122,6 +131,8 @@ public class RecordPlayerService extends Service {
     public void initializePlayer() {
         mMediaPlayer = null;
         mMediaPlayer = new MediaPlayer();
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
         try
         {
             mMediaPlayer.setDataSource(mUrl);
@@ -152,27 +163,28 @@ public class RecordPlayerService extends Service {
     }
 
     public void stopMediaPlayer() {
+        if (mMediaPlayer !=null)
         mMediaPlayer.stop();
     }
 
     public void releaseMediaPlayer() {
-        mMediaPlayer.release();
+        if (mMediaPlayer !=null) mMediaPlayer.release();
     }
 
     public void pauseMediaPlayer () {
-        mMediaPlayer.pause();
+        if (mMediaPlayer !=null) mMediaPlayer.pause();
     }
 
     public void startMediaPlayer () {
-        mMediaPlayer.start();
+        if (mMediaPlayer !=null) mMediaPlayer.start();
     }
 
-    public boolean isMediaPlayerPlaying(){
-        return mMediaPlayer.isPlaying();
+    public boolean isMediaPlayerPlaying() {
+        return mMediaPlayer != null && mMediaPlayer.isPlaying();
     }
 
     public void seekTo (int msc){
-        mMediaPlayer.seekTo(msc);
+        if (mMediaPlayer !=null) mMediaPlayer.seekTo(msc);
     }
 
     public int getLength (){
@@ -211,6 +223,17 @@ public class RecordPlayerService extends Service {
     public class MyBinder extends Binder {
         public RecordPlayerService getService() {
             return RecordPlayerService.this;
+        }
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        if(focusChange<=0) {
+            Log.i("KZNH - audio focus", "pausing player");
+            pauseMediaPlayer();
+        } else {
+            Log.i("KZNH - audio focus", "starting player");
+            startMediaPlayer();
         }
     }
 }

@@ -73,7 +73,7 @@ public class Constants {
 
     public static final String KEY_PLAN_BOOK_NUMBER = "BookNumber";
 
-    public static final String KEY_PLAN_DATE = "Date";
+    public static final String KEY_PLAN_DATE = "date";
 
     public static final String KEY_PLAN_FIRST_CHAPTER = "FirstChapter";
 
@@ -83,7 +83,7 @@ public class Constants {
 
     public static final String KEY_PLAN_LAST_VERSE = "LastVerse";
 
-    public static final String KEY_PLAN_MY_SWORD_ABBREVIATION = "MySwordAbbreviations";
+    public static final String KEY_PLAN_MY_SWORD_ABBREVIATION = "MySwordAbbreviation";
 
     public static final String CLASS_READING_PLAN = "ReadingPlan";
 

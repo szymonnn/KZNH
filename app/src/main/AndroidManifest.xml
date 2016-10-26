@@ -8,11 +8,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-
-    <permission android:protectionLevel="signature"
-        android:name="pl.kznh.radio.permission.C2D_MESSAGE" />
-    <uses-permission android:name="pl.kznh.radio.permission.C2D_MESSAGE" />
 
     <application
         tools:replace="android:theme, android:icon"
@@ -48,28 +43,6 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
-        <service android:name="com.parse.PushService" />
-        <receiver android:name="com.parse.ParsePushBroadcastReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.parse.push.intent.RECEIVE" />
-                <action android:name="com.parse.push.intent.DELETE" />
-                <action android:name="com.parse.push.intent.OPEN" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-
-                <!--
-                  IMPORTANT: Change "com.parse.starter" to match your app's package name.
-                -->
-                <category android:name="pl.kznh.radio" />
-            </intent-filter>
-        </receiver>
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d97ddfd6cbb7ced71c134c9db4224fe1dd091d98" />

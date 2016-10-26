@@ -2,6 +2,8 @@ package pl.kznh.radio.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -15,10 +17,11 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ import java.util.List;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import pl.aprilapps.switcher.Switcher;
 import pl.kznh.radio.R;
+import pl.kznh.radio.gson.plan.ToRead;
 import pl.kznh.radio.utils.Constants;
 import pl.kznh.radio.utils.ReadingPlanAdapter;
 import pl.kznh.radio.utils.TypefaceSpan;
@@ -88,34 +92,47 @@ public class ReadingPlanFragment extends Fragment{
 
         mPercentageTextView.setTypeface(Constants.robotoCondensed);
 
-        SimpleDateFormat queryDateFormat = new SimpleDateFormat("DD-MM");
-        ParseQuery<ParseObject> query = ParseQuery.getQuery(Constants.CLASS_READING_PLAN);
-        query.whereEqualTo(Constants.KEY_PLAN_DATE, queryDateFormat.format(new Date()));
-        query.findInBackground(new FindCallback<ParseObject>() {
+        SimpleDateFormat queryDateFormat = new SimpleDateFormat("dd-MM");
+        Firebase ref = new Firebase("https://resplendent-torch-429.firebaseio.com/" + Constants.CLASS_READING_PLAN);
+        if (isNetworkAvailable()){
+        Query queryRef = ref.orderByChild(Constants.KEY_PLAN_DATE).equalTo(queryDateFormat.format(new Date()));
+        queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if (e == null) {
+            public void onDataChange(DataSnapshot snapshot) {
+                if (!snapshot.exists() || snapshot == null) {
+                    mSwitcher.showErrorView(String.format("%s", getString(R.string.error_unknown)));
+                } else {
+
+
+                    System.out.println(snapshot.getValue());
                     mSwitcher.showContentView();
                     setProgress();
-                    for (ParseObject object : objects) {
-                        mBookNames.add(object.getString(Constants.KEY_PLAN_BOOK_NAME));
-                        mDates.add(object.getString(Constants.KEY_PLAN_DATE));
+                    for (DataSnapshot toReadSnapshot : snapshot.getChildren()) {
+                        ToRead toRead = toReadSnapshot.getValue(ToRead.class);
+                        mBookNames.add(toRead.getBookName());
+                        mDates.add(toRead.getDate());
                         mAnnotations.add(getAnnotation(
-                                object.getInt(Constants.KEY_PLAN_FIRST_CHAPTER),
-                                object.getInt(Constants.KEY_PLAN_FIRST_VERSE),
-                                object.getInt(Constants.KEY_PLAN_LAST_CHAPTER),
-                                object.getInt(Constants.KEY_PLAN_LAST_VERSE)));
-                        mMySwordAbbeviations.add(object.getString(Constants.KEY_PLAN_MY_SWORD_ABBREVIATION));
-                        mBookNumbers.add(object.getInt(Constants.KEY_PLAN_BOOK_NUMBER));
-                        mFirstChapters.add(object.getInt(Constants.KEY_PLAN_FIRST_CHAPTER));
+                                toRead.getFirstChapter(),
+                                toRead.getFirstVerse(),
+                                toRead.getLastChapter(),
+                                toRead.getLastVerse()));
+                        mMySwordAbbeviations.add(toRead.getMySwordAbbreviation());
+                        mBookNumbers.add(toRead.getBookNumber());
+                        mFirstChapters.add(toRead.getFirstChapter());
+
+                        mListView.setAdapter(new ReadingPlanAdapter(mContext, android.R.layout.simple_list_item_1, mBookNames, mBookNumbers, mFirstChapters, mAnnotations, mMySwordAbbeviations));
                     }
-                    mListView.setAdapter(new ReadingPlanAdapter(mContext, android.R.layout.simple_list_item_1, mBookNames, mBookNumbers, mFirstChapters, mAnnotations, mMySwordAbbeviations));
-                } else {
-                    mSwitcher.showErrorView(String.format("%s\n%s %s", getString(R.string.error_unknown), getString(R.string.error_code), e.getCode()));
-                    e.printStackTrace();
                 }
             }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                mSwitcher.showErrorView(String.format("%s\n%s %s", getString(R.string.error_unknown), getString(R.string.error_code), firebaseError.getCode()));
+            }
         });
+        } else {
+            mSwitcher.showErrorView(String.format("%s", getString(R.string.error_unknown)));
+        }
         return view;
     }
 
@@ -165,5 +182,12 @@ public class ReadingPlanFragment extends Fragment{
         s.setSpan(new TypefaceSpan(getActivity(), Constants.FONT_NAME), 0, s.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(s);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

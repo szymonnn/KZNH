@@ -39,9 +39,9 @@ import pl.kznh.radio.utils.TypefaceSpan;
  */
 public class RadioFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
-    private String [] mRadioNames;
+    private String[] mRadioNames;
 
-    private String [] mRadioOwners;
+    private String[] mRadioOwners;
 
     private SharedPreferences mSharedPreferences;
 
@@ -75,11 +75,10 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (position == 0 && !shouldOpenKznhRadio()){
+        if (position == 0 && !shouldOpenKznhRadio()) {
             Toast.makeText(getActivity(), R.string.only_sunday, Toast.LENGTH_LONG).show();
-        } else {
-            tryToStartActivity(position);
         }
+        tryToStartActivity(position);
     }
 
     private void tryToStartActivity(int position) {
@@ -114,20 +113,20 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
         return (dayOfWeek == Calendar.SUNDAY && hour >= 10);
     }
 
-    public void setActionBarTitle (int titleRes) {
+    public void setActionBarTitle(int titleRes) {
         SpannableString s = new SpannableString(getString(titleRes));
         s.setSpan(new TypefaceSpan(getActivity(), Constants.FONT_NAME), 0, s.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(s);
     }
 
-    private boolean isWifiConnected () {
+    private boolean isWifiConnected() {
         ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
         return activeNetwork != null && (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI);
     }
 
-    private boolean isNetworkAvailable (){
+    private boolean isNetworkAvailable() {
         ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
         return activeNetwork != null;
@@ -137,8 +136,8 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.internet_usage_dialog, null);
-        final CheckBox checkBox = (CheckBox)view.findViewById(R.id.checkBox);
-        TextView warningTextView = (TextView)view.findViewById(R.id.textView2);
+        final CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBox);
+        TextView warningTextView = (TextView) view.findViewById(R.id.textView2);
         checkBox.setTypeface(Constants.robotoCondensed);
         warningTextView.setTypeface(Constants.robotoCondensed);
         builder.setView(view);
@@ -172,7 +171,7 @@ public class RadioFragment extends Fragment implements AdapterView.OnItemClickLi
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        if (position == 0){
+        if (position == 0) {
             tryToStartActivity(position);
         }
         return false;
