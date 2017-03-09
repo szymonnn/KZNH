@@ -39,6 +39,7 @@ public class ReadingPlanAdapter extends ArrayAdapter<String> {
     protected List<String> mCurrentFragmentsToRead;
     protected Set<String> mReadFragments;
     protected SharedPreferences mSharedPreferences;
+    protected List<String> mBibleOnlineNames;
 
 
     public ReadingPlanAdapter(Context mContext,
@@ -47,7 +48,8 @@ public class ReadingPlanAdapter extends ArrayAdapter<String> {
                               List<Integer> bookNumbers,
                               List<Integer> firstChapters,
                               List<String> annotations,
-                              List<String> mySwordAbreviations    ) {
+                              List<String> mySwordAbreviations,
+                              List<String> bibleOnlineNames) {
         super(mContext, resource, bookNames);
         this.mContext = mContext;
         this.mBookNames = bookNames;
@@ -61,6 +63,7 @@ public class ReadingPlanAdapter extends ArrayAdapter<String> {
             mCurrentFragmentsToRead.add(mBookNames.get(i) + mAnnotations.get(i));
         }
         this.mReadFragments = mSharedPreferences.getStringSet(Constants.PREF_READ_FRAGMENTS, new HashSet<String>());
+        this.mBibleOnlineNames = bibleOnlineNames;
 
     }
 
@@ -101,16 +104,17 @@ public class ReadingPlanAdapter extends ArrayAdapter<String> {
                         holder.bibleIcon.setImageResource(R.drawable.icon_check_inactive);
                         holder.bibleIcon.setBackgroundResource(R.drawable.menu_item_icon_background_inactive);
 
-                        try {
-                            Intent intent = new Intent();
-                            intent.setComponent(ComponentName.unflattenFromString(
-                                    "com.riversoft.android.mysword/com.riversoft.android.mysword.MySwordLink"));
-                            intent.setData(Uri.parse("http://mysword.info/b?r=" + mMySwordAbbeviations.get(position) + "_" + mAnnotations.get(position)));
-                            mContext.startActivity(intent);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            showMySwordDialog(position);
-                        }
+//                        try {
+//                            Intent intent = new Intent();
+//                            intent.setComponent(ComponentName.unflattenFromString(
+//                                    "com.riversoft.android.mysword/com.riversoft.android.mysword.MySwordLink"));
+//                            intent.setData(Uri.parse("http://mysword.info/b?r=" + mMySwordAbbeviations.get(position) + "_" + mAnnotations.get(position)));
+//                            mContext.startActivity(intent);
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                            showMySwordDialog(position);
+//                        }
+                showMySwordDialog(position);
             }
         };
         holder.readButton.setOnClickListener(listener);
@@ -163,7 +167,8 @@ public class ReadingPlanAdapter extends ArrayAdapter<String> {
                     PreferenceManager.getDefaultSharedPreferences(mContext).edit().putBoolean(Constants.PREF_SHOW_MYSWORD_DIALOG, false).apply();
                 }
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("http://biblia-online.pl/biblia,,,rozdzial," + mFirstChapters.get(position) + ",wers,1,1," + mBookNumbers.get(position)+",1,t.html"));
+                String url = "http://biblia-online.pl/Biblia/Warszawska/" + mBibleOnlineNames.get(position) + "/" + mFirstChapters.get(position) + "/" + mFirstChapters.get(position);
+                intent.setData(Uri.parse(url));
                 Toast.makeText(mContext, mContext.getString(R.string.read).toLowerCase() + ": " + mBookNames.get(position) + " " + mAnnotations.get(position), Toast.LENGTH_LONG).show();
                 mContext.startActivity(intent);
             }

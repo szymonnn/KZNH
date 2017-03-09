@@ -15,6 +15,11 @@ public class ToRead {
     private int lastChapter;
     private int firstVerse;
     private int lastVerse;
+    private String bibleOnlineName;
+
+    public void setBibleOnlineName(String bibleOnlineName) {
+        this.bibleOnlineName = bibleOnlineName;
+    }
 
     public ToRead (){}
 
@@ -104,5 +109,9 @@ public class ToRead {
 
     public void setBookNumber(int bookNumber) {
         this.bookNumber = bookNumber;
+    }
+
+    public String getBibleOnlineName() {
+        return bibleOnlineName;
     }
 }

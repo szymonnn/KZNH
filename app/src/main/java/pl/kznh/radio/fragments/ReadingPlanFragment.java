@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,11 +26,10 @@ import com.firebase.client.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import pl.aprilapps.switcher.Switcher;
 import pl.kznh.radio.R;
 import pl.kznh.radio.gson.plan.ToRead;
@@ -51,6 +51,8 @@ public class ReadingPlanFragment extends Fragment{
     private List<String> mAnnotations = new ArrayList<>();
 
     private List<String> mMySwordAbbeviations = new ArrayList<>();
+
+    private List<String> mBibleOnlineNames = new ArrayList<>();
 
     private List<Integer> mBookNumbers = new ArrayList<>();
 
@@ -83,11 +85,16 @@ public class ReadingPlanFragment extends Fragment{
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mListView = (ListView) view.findViewById(R.id.listView);
 
-        SimpleDateFormat queryDateFormat = new SimpleDateFormat("dd-MM");
+        SimpleDateFormat queryDateFormat = new SimpleDateFormat("dd-MM-yy");
         Firebase ref = new Firebase("https://resplendent-torch-429.firebaseio.com/" + Constants.CLASS_READING_PLAN);
         if (isNetworkAvailable()){
-        Query queryRef = ref.orderByChild(Constants.KEY_PLAN_DATE).equalTo(queryDateFormat.format(new Date()));
-        queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.set(Calendar.YEAR, 2015);
+            Date date = calendar.getTime();
+            Log.i("QUERY_DATE", queryDateFormat.format(date));
+        //Query queryRef = ref.orderByChild(Constants.KEY_PLAN_DATE).equalTo(queryDateFormat.format(date));
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (!snapshot.exists() || snapshot == null) {
@@ -109,8 +116,8 @@ public class ReadingPlanFragment extends Fragment{
                         mMySwordAbbeviations.add(toRead.getMySwordAbbreviation());
                         mBookNumbers.add(toRead.getBookNumber());
                         mFirstChapters.add(toRead.getFirstChapter());
-
-                        mListView.setAdapter(new ReadingPlanAdapter(mContext, android.R.layout.simple_list_item_1, mBookNames, mBookNumbers, mFirstChapters, mAnnotations, mMySwordAbbeviations));
+                        mBibleOnlineNames.add(toRead.getBibleOnlineName());
+                        mListView.setAdapter(new ReadingPlanAdapter(mContext, android.R.layout.simple_list_item_1, mBookNames, mBookNumbers, mFirstChapters, mAnnotations, mMySwordAbbeviations, mBibleOnlineNames));
                     }
                 }
             }
