@@ -85,7 +85,7 @@ public class Constants {
 
     public static final String KEY_PLAN_MY_SWORD_ABBREVIATION = "MySwordAbbreviation";
 
-    public static final String CLASS_READING_PLAN = "ReadingPlan2";
+    public static final String CLASS_READING_PLAN = "ReadingPlan";
 
     public static final String PREF_READ_FRAGMENTS = "read_positions";
 }
