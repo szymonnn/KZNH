@@ -22,11 +22,11 @@ android {
     buildToolsVersion '28.0.3'
 
     defaultConfig {
-        applicationId "pl.kznh.radio"
+        applicationId "pl.kznh.app"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 5
-        versionName "1.4"
+        versionCode 6
+        versionName "1.5"
     }
     buildTypes {
         release {

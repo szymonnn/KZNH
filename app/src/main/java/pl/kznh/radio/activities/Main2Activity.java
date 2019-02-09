@@ -1,5 +1,7 @@
 package pl.kznh.radio.activities;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -42,10 +44,15 @@ public class Main2Activity extends AppCompatActivity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        FragmentManager mFragmentManager = getSupportFragmentManager();
-        mFragmentManager.beginTransaction()
-                .replace(R.id.container, getFragment(position))
-                .commit();
+        if (position == 3){
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://kznh.pl/kazania"));
+            startActivity(intent);
+        } else {
+            FragmentManager mFragmentManager = getSupportFragmentManager();
+            mFragmentManager.beginTransaction()
+                    .replace(R.id.container, getFragment(position))
+                    .commit();
+        }
     }
 
     private Fragment getFragment(int position) {

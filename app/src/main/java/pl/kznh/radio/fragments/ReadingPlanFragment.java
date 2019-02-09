@@ -85,7 +85,7 @@ public class ReadingPlanFragment extends Fragment{
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mListView = (ListView) view.findViewById(R.id.listView);
 
-        SimpleDateFormat queryDateFormat = new SimpleDateFormat("dd-MM-yy");
+        SimpleDateFormat queryDateFormat = new SimpleDateFormat("dd-MM");
         Firebase ref = new Firebase("https://resplendent-torch-429.firebaseio.com/" + Constants.CLASS_READING_PLAN);
         if (isNetworkAvailable()){
             Calendar calendar = Calendar.getInstance();
@@ -93,8 +93,8 @@ public class ReadingPlanFragment extends Fragment{
             calendar.set(Calendar.YEAR, 2015);
             Date date = calendar.getTime();
             Log.i("QUERY_DATE", queryDateFormat.format(date));
-        //Query queryRef = ref.orderByChild(Constants.KEY_PLAN_DATE).equalTo(queryDateFormat.format(date));
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        Query queryRef = ref.orderByChild(Constants.KEY_PLAN_DATE).equalTo(queryDateFormat.format(date));
+        queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (!snapshot.exists() || snapshot == null) {
