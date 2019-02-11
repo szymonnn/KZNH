@@ -15,7 +15,7 @@ public class Start {
         Date dt = null;
         try {
             dt = sdf.parse(dateTime);
-        } catch (ParseException e) {
+        } catch (NullPointerException | ParseException e) {
             e.printStackTrace();
         }
         return dt;

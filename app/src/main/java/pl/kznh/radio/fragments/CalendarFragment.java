@@ -217,6 +217,9 @@ public class CalendarFragment extends Fragment {
     }
 
     private boolean shouldAddToArray(Date date1, Date date2) {
+        if (date1 == null || date2 == null){
+            return false;
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(date1).equals(sdf.format(date2));
     }
@@ -224,7 +227,9 @@ public class CalendarFragment extends Fragment {
     private List<CalendarDay> getDaysToDecorate () {
         List<CalendarDay> dates = new ArrayList<>();
         for (Event event : mEvents){
-            dates.add(CalendarDay.from(event.getStart().getDateTime()));
+            if (event.getStart().getDateTime() != null) {
+                dates.add(CalendarDay.from(event.getStart().getDateTime()));
+            }
         }
         return dates;
     }
