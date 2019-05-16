@@ -63,7 +63,7 @@
         <item>Piosenki polskie</item>
     </string-array>
     <string-array name="radio_url_array">
-        <item>http://sc.4stream.pl:18772</item>
+        <item>http://4stream.pl:18772</item>
         <item>http://radiointernetowe.net:9450</item>
         <item>http://shoutcast.com.pl:9448</item>
         <item>http://shoutcast.com.pl:9444</item>
